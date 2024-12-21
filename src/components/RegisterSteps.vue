@@ -127,7 +127,7 @@ const createUserProfile = async () => {
     const userToCreate = {
       firstName: profileParams.firstName,
       lastName: profileParams.lastName,
-      email: credentialsParams.email,
+      email: auth.currentUser.email,
       uid: auth.currentUser.uid,
       createdAt: nowToUTCTimestamp(),
     };
@@ -172,7 +172,6 @@ const handleCreateProfileDetailsClick = (e: MouseEvent) => {
             router.push('/app')
           })
           .catch((error) => {
-            console.log(error)
             notifyError(notification, error)
           })
           .finally(() => {
