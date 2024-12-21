@@ -1,22 +1,12 @@
 <script setup lang="ts">
 import RegisterSteps from "@/components/RegisterSteps.vue";
-
-const goToLogin = () => {
-  router.push('/auth/login')
-}
 </script>
 
 <template>
   <div class="container d-flex flex-column justify-content-center align-items-center rounded-5 p-5">
     <h1 class="mb-2">Join us today!</h1>
-    <h3 class="mb-3 text-muted">Create your account</h3>
-    <RegisterSteps/>
-    <div class="mt-4">
-      Already have an account?
-      <n-button text @click="goToLogin" size="large" type="primary">
-        Login here
-      </n-button>
-    </div>
+    <h3 class="mb-3 text-muted">Complete registration</h3>
+    <RegisterSteps :initial-state="2"/>
   </div>
 </template>
 
