@@ -4,14 +4,21 @@ import {type FormInst} from "naive-ui";
 import {ArrowRight24Regular} from '@vicons/fluent'
 import {containerLowercase, containsUppercase, validateEmail} from "@/utils/validations.ts";
 import {useRouter} from "vue-router";
-
+import {createUserWithEmailAndPassword} from "firebase/auth";
+import {db, auth} from "@/firebase";
+import {doc} from "firebase/firestore";
+import {runTransaction} from "firebase/firestore";
+import {EmailAlreadyInUseError, notifyError, UsernameAlreadyInUseError} from "@/utils/errors.ts";
+import {useNotification} from "naive-ui";
+import {nowToUTCTimestamp} from "@/utils/datetime.ts";
 
 const registerParams = reactive({
-  firstName: '',
+  firstName: 'TestUser1',
   lastName: '',
-  email: '',
-  password: '',
-  confirmPassword: ''
+  username: 'test.user.1',
+  email: 'test.user.1@mail.com',
+  password: 'Password',
+  confirmPassword: 'Password'
 })
 
 const formRef = ref<FormInst | null>(null)
@@ -24,6 +31,11 @@ const rules = {
   email: {
     required: true,
     message: 'Please input your email',
+    trigger: 'blur'
+  },
+  username: {
+    required: true,
+    message: 'Please input your username',
     trigger: 'blur'
   },
   password: {
@@ -85,18 +97,62 @@ const confirmPasswordFeedback = computed(() => {
   return registerParams.confirmPassword === '' || registerParams.password === registerParams.confirmPassword ? undefined : 'Passwords do not match'
 })
 
-const handleValidateClick = (e: MouseEvent) => {
+const registerUser = async (params: {
+  firstName: string,
+  lastName: string,
+  username: string,
+  email: string,
+  password: string
+}) => {
+  const userWithSameUsernameRef = doc(db, "users", params.username);
+
+  await runTransaction(db, async (transaction) => {
+    // Check if the username is already in use
+    const userWithSameUsername = await transaction.get(userWithSameUsernameRef);
+    if (userWithSameUsername.data() !== undefined) {
+      return Promise.reject(UsernameAlreadyInUseError);
+    }
+
+    // Create the user with email and password
+    try {
+      await createUserWithEmailAndPassword(auth, params.email, params.password);
+    } catch (error) {
+      return Promise.reject(EmailAlreadyInUseError);
+    }
+    const user = auth.currentUser
+
+    // Add user data to the Firestore 'users' collection
+    const userDocRef = doc(db, "users", params.username);
+    transaction.set(userDocRef, {
+      firstName: params.firstName,
+      lastName: params.lastName,
+      email: params.email,
+      uid: user.uid,
+      createdAt: nowToUTCTimestamp(),
+    });
+  });
+}
+
+const notification = useNotification();
+const loading = ref(false)
+const router = useRouter();
+
+const handleRegisterClick = (e: MouseEvent) => {
   e.preventDefault()
   formRef.value?.validate((errors) => {
     if (!errors) {
-      console.log("Valid")
-    } else {
-      console.log(errors)
+      loading.value = true
+      registerUser(registerParams).then(() => {
+        // router.push('/app')
+      }).catch((error) => {
+        notifyError(notification, error)
+      }).finally(() => {
+        loading.value = false
+      })
     }
   })
 }
 
-const router = useRouter();
 const goToLogin = () => {
   router.push('/auth/login')
 }
@@ -128,6 +184,9 @@ const goToLogin = () => {
       <n-form-item label="Email" path="email" :validation-status="emailValidationStatus" :feedback="emailFeedback">
         <n-auto-complete v-model:value="registerParams.email" placeholder="example@mail.com" :options="emailOptions"/>
       </n-form-item>
+      <n-form-item label="Username" path="username">
+        <n-input v-model:value="registerParams.username" placeholder="john.smith"/>
+      </n-form-item>
       <n-form-item path="password" label="Password" :validation-status="passwordValidationStatus"
                    :feedback="passwordFeedback">
         <n-input v-model:value="registerParams.password" type="password" placeholder="Password"
@@ -139,7 +198,8 @@ const goToLogin = () => {
                  show-password-on="click" minlength="6"/>
       </n-form-item>
       <div class="d-flex align-items-center justify-content-center">
-        <n-button class="py-0" type="primary" @click="handleValidateClick" icon-placement="right" size="large">
+        <n-button class="py-0" type="primary" @click="handleRegisterClick" :loading="loading" icon-placement="right"
+                  size="large">
           <template #icon>
             <n-icon>
               <ArrowRight24Regular/>

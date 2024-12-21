@@ -5,7 +5,9 @@ import {darkTheme} from 'naive-ui'
 
 <template>
   <n-config-provider :theme="darkTheme">
-    <RouterView/>
+    <n-notification-provider>
+      <RouterView/>
+    </n-notification-provider>
   </n-config-provider>
 </template>
 
