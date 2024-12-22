@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import {computed, reactive, ref} from 'vue'
-import {type FormInst} from "naive-ui";
+import {type FormInst, useNotification} from "naive-ui";
 import {ArrowRight24Regular} from '@vicons/fluent'
 import {validateEmail} from "@/utils/validations.ts";
 import {useRouter} from "vue-router";
+import {signInWithEmailAndPassword} from "firebase/auth";
+import {auth} from "@/firebase";
+import {notifyError} from "@/utils/errors.ts";
 
 
 const loginParams = reactive({
-  email: '',
-  password: ''
+  email: 'test.user.1@mail.com',
+  password: 'Password',
 })
 
 const formRef = ref<FormInst | null>(null)
@@ -43,18 +46,30 @@ const emailOptions = computed(() => {
   })
 })
 
+const notification = useNotification();
+const loading = ref(false)
+const router = useRouter();
+
 const handleValidateClick = (e: MouseEvent) => {
   e.preventDefault()
   formRef.value?.validate((errors) => {
     if (!errors) {
-      console.log("Valid")
-    } else {
-      console.log(errors)
+      loading.value = true
+      signInWithEmailAndPassword(auth, loginParams.email, loginParams.password)
+          .then(() => {
+            router.push('/app')
+          })
+          .catch((error) => {
+            console.error(error)
+            notifyError(notification, error)
+          })
+          .finally(() => {
+            loading.value = false
+          })
     }
   })
 }
 
-const router = useRouter();
 const goToRegistration = () => {
   router.push('/auth/register')
 }
@@ -78,7 +93,8 @@ const goToRegistration = () => {
         <n-input v-model:value="loginParams.password" type="password" placeholder="Password" show-password/>
       </n-form-item>
       <div class="d-flex align-items-center justify-content-center">
-        <n-button class="py-0" type="primary" @click="handleValidateClick" icon-placement="right" size="large">
+        <n-button class="py-0" type="primary" @click="handleValidateClick" :loading="loading" icon-placement="right"
+                  size="large">
           <template #icon>
             <n-icon>
               <ArrowRight24Regular/>

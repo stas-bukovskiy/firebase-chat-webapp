@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import RegisterSteps from "@/components/RegisterSteps.vue";
+import {useRouter} from "vue-router";
 
+const router = useRouter()
 const goToLogin = () => {
   router.push('/auth/login')
 }

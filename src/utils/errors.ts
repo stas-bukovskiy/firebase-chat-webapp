@@ -34,9 +34,9 @@ const errors: Map<string, ErrorDetail> = new Map([
         title: "User not found",
         description: "Please check your email and try again."
     }],
-    ["auth/wrong-password", {
-        title: "Wrong password",
-        description: "Please check your password and try again."
+    ["auth/invalid-credential", {
+        title: "Invalid credential",
+        description: "Please check your email and password."
     }],
 ]);
 
