@@ -39,12 +39,3 @@ export function generateInitials(fullName: string): string {
         ? names[0][0].toUpperCase() + names[names.length - 1][0].toUpperCase()
         : names[0][0].toUpperCase();
 }
-
-// Example usage
-const username = "exampleUser";
-const {bgColor, textColor} = generateAvatarColors(username);
-console.log(`Background Color: ${bgColor}, Text Color: ${textColor}`);
-
-const fullName = "John Doe";
-const initials = generateInitials(fullName);
-console.log(`Initials: ${initials}`);
