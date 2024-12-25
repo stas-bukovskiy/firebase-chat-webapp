@@ -2,6 +2,7 @@ import type {NotificationApiInjection} from "naive-ui/es/notification/src/Notifi
 
 export const UsernameAlreadyInUseError = "auth/username-already-in-use";
 export const EmailAlreadyInUseError = "auth/email-already-in-use";
+export const StorageObjectNotFoundError = "storage/object-not-found";
 
 type ErrorDetail = {
     title: string;
@@ -40,8 +41,17 @@ const errors: Map<string, ErrorDetail> = new Map([
     }],
 ]);
 
+const notNotifyErrors: Set<string> = new Set([
+    "storage/canceled",
+]);
+
 export function notifyError(notification: NotificationApiInjection, error: Error): void {
     const errorCode = error.code || error.message || error;
+    if (notNotifyErrors.has(errorCode)) {
+        return;
+    }
+
+    console.log("Error code:", error.code, " for ", error);
     const errorDetail = errors.get(errorCode) ?? defaultErrorDetail;
     notification.error({
         title: errorDetail.title,

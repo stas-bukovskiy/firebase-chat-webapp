@@ -28,6 +28,7 @@ const router = createRouter({
                 {
                     name: 'complete-profile',
                     path: 'complete-profile',
+                    meta: {requiresAuth: true},
                     component: CompleteProfileView
                 }
             ]

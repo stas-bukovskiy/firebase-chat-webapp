@@ -4,7 +4,7 @@ import {type FormInst} from "naive-ui";
 import {ArrowRight24Regular} from '@vicons/fluent'
 import {containerLowercase, containsUppercase, validateEmail} from "@/utils/validations.ts";
 import {useRouter} from "vue-router";
-import {createUserWithEmailAndPassword} from "firebase/auth";
+import {createUserWithEmailAndPassword, updateProfile} from "firebase/auth";
 import {db, auth} from "@/firebase";
 import {doc} from "firebase/firestore";
 import {runTransaction} from "firebase/firestore";
@@ -12,6 +12,7 @@ import {notifyError, UsernameAlreadyInUseError} from "@/utils/errors.ts";
 import {useNotification} from "naive-ui";
 import {nowToUTCTimestamp} from "@/utils/datetime.ts";
 import {useUserStore} from "@/stores/user.ts";
+import UploadAvatar from "@/components/UploadAvatar.vue";
 
 const props = defineProps({
   initialState: {
@@ -33,6 +34,7 @@ const profileParams = reactive({
   firstName: 'TestUser1',
   lastName: '',
   username: 'test.user.1',
+  photoUrl: null
 })
 
 const credentialsFormRef = ref<FormInst | null>(null)
@@ -129,6 +131,7 @@ const createUserProfile = async () => {
       lastName: profileParams.lastName,
       email: auth.currentUser.email,
       uid: auth.currentUser.uid,
+      photoUrl: profileParams.photoUrl,
       createdAt: nowToUTCTimestamp(),
     };
     transaction.set(userDocRef, userToCreate);
@@ -140,12 +143,21 @@ const notification = useNotification();
 const loading = ref(false)
 const router = useRouter();
 
+const getProfileDisplayName = () => {
+  return profileParams.firstName + (profileParams.lastName ? ' ' + profileParams.lastName : '')
+}
+
+const displayName = computed(() => {
+  return getProfileDisplayName();
+})
+
 const handleCreateUserClick = (e: MouseEvent) => {
   e.preventDefault()
   credentialsFormRef.value?.validate((errors) => {
     if (!errors) {
       loading.value = true
       createUserWithEmailAndPassword(auth, credentialsParams.email, credentialsParams.password)
+          .then(updateProfile(auth.currentUser, {displayName: getProfileDisplayName()}))
           .then(() => {
             current.value = 2
           })
@@ -157,6 +169,11 @@ const handleCreateUserClick = (e: MouseEvent) => {
           })
     }
   })
+}
+
+const handleNewAvatarUrl = (url: string) => {
+  console.log('New avatar URL:', url)
+  profileParams.photoUrl = url
 }
 
 const userStore = useUserStore()
@@ -184,8 +201,9 @@ const handleCreateProfileDetailsClick = (e: MouseEvent) => {
 
 <template>
   <div class="d-flex flex-column align-items-center justify-content-center" style="width: 100%">
-    <div class="mt-2 mb-3">
-      <n-steps :current="current as number" :status="currentStatus">
+    <!-- Stepper -->
+    <div class="mt-2 mb-4">
+      <n-steps :current="current as number">
         <n-step
             title="Credentials"
         />
@@ -194,6 +212,8 @@ const handleCreateProfileDetailsClick = (e: MouseEvent) => {
         />
       </n-steps>
     </div>
+
+    <!-- First step: Credentials -->
     <div v-if="isCredentialsStep" style="width: 100%;">
       <n-form
           ref="credentialsFormRef"
@@ -230,6 +250,8 @@ const handleCreateProfileDetailsClick = (e: MouseEvent) => {
         </div>
       </n-form>
     </div>
+
+    <!-- Second step: Profile details -->
     <div v-else-if="!isCredentialsStep">
       <n-form
           ref="profileParamsFormRef"
@@ -238,13 +260,17 @@ const handleCreateProfileDetailsClick = (e: MouseEvent) => {
           size="large"
           style="width: 100%"
       >
-        <div class="row">
-          <div class="col-6">
+        <div class="row row-cols-auto">
+          <div class="col-4 d-flex align-items-center justify-content-center">
+            <div>
+              <UploadAvatar :display-name="displayName" :avatar-key="auth.currentUser?.uid"
+                            @new-avatar-url="handleNewAvatarUrl" @update:is-loading="loading = $event"/>
+            </div>
+          </div>
+          <div class="col-8">
             <n-form-item label="First name" path="firstName">
               <n-input v-model:value="profileParams.firstName" placeholder="John"/>
             </n-form-item>
-          </div>
-          <div class="col-6">
             <n-form-item label="Last name">
               <n-input v-model:value="profileParams.lastName" placeholder="Smith"/>
             </n-form-item>
