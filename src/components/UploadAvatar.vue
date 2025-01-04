@@ -144,7 +144,7 @@ const handleAvatarRemoving = () => {
       :style="{ backgroundColor: colors.bgColor, color: colors.textColor }"
       @mouseover="hover = !loading" @mouseleave="hover = false"
   >
-    <img v-if="isAvatarUrl" :src="avatarUrl" alt="Avatar" class="avatar-image"/>
+    <img v-if="isAvatarUrl" :src="avatarUrl" :alt="displayName" class="avatar-image"/>
     <span v-else class="avatar-initials">{{ initials }}</span>
     <div v-if="hover" class="avatar-overlay">
       <n-tooltip trigger="hover">

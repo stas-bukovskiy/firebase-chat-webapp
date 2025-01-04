@@ -32,6 +32,10 @@ export function generateAvatarColors(fullName: string): { bgColor: string, textC
     return {bgColor, textColor};
 }
 
+export function generateDisplayName(params: { firstName: string, lastName?: string }): string {
+    return params.lastName ? `${params.firstName} ${params.lastName}` : params.firstName;
+}
+
 // Function to generate initials from first and last name
 export function generateInitials(fullName: string): string {
     const names = fullName.trim().split(/\s+/);
