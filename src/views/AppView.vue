@@ -3,7 +3,7 @@
 </script>
 
 <template>
-<h1>Hello World</h1>
+Open the chat to start messaging...
 </template>
 
 <style scoped>

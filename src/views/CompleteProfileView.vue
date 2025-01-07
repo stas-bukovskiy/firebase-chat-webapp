@@ -12,7 +12,7 @@ import RegisterSteps from "@/components/RegisterSteps.vue";
 
 <style scoped>
 .container {
-  background-color: #272727;
+  background-color: var(--cs-card-bg-color);;
   min-width: 400px;
   width: 500px;
   max-width: 600px;

@@ -42,8 +42,7 @@ const handleClick = () => {
       @click="handleClick" :style="{ backgroundColor: isHover || props.isCurrent ? '#293632' : '' }"
   >
     <div>
-      <Avatar :displayName="props.displayName" :avatarKey="props.avatarKey" :avatarUrl="props.avatarUrl"
-              :isOnline="props.isOnline" :isCurrent="isHover || props.isCurrent"
+      <Avatar :params="props" :isCurrent="isHover || props.isCurrent"
       />
     </div>
     <div class="ms-3 d-flex align-items-center justify-content-between" style="width: 100%">

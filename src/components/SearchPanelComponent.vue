@@ -14,7 +14,7 @@ const handleSearchInput = (event: Event) => {
 
 <template>
   <div class="d-flex align-items-center">
-    <n-input placeholder="Search chat" class="w-100" size="large" :oninput="handleSearchInput">
+    <n-input placeholder="Start typing to search..." class="w-100" size="large" :oninput="handleSearchInput">
       <template #prefix>
         <n-icon :component="Search24Filled"/>
       </template>

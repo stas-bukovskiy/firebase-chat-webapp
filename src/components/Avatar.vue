@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import {computed} from "vue";
+import {computed, type PropType} from "vue";
 import {generateAvatarColors, generateInitials} from "@/utils/avatars.ts";
+import type {AvatarParamsInterface} from "@/services/interfaces.ts";
+
 
 const props = defineProps({
-  displayName: String,
-  avatarUrl: {
-    type: String | null,
-    default: null
+  params: {
+    type: Object as PropType<AvatarParamsInterface>,
+    required: true
   },
-  avatarKey: String,
-  isOnline: Boolean,
   isCurrent: {
     type: Boolean,
     default: false
@@ -17,34 +16,32 @@ const props = defineProps({
 });
 
 const initials = computed(() => {
-  return props.displayName ? generateInitials(props.displayName) : "";
+  return props.params.displayName ? generateInitials(props.params.displayName) : "";
 });
 
 const colors = computed(() => {
-  return props.avatarKey
-      ? generateAvatarColors(props.avatarKey)
-      : {bgColor: "#63e2b7", textColor: "#000"};
+  return props.params.avatarKey
+      ? generateAvatarColors(props.params.avatarKey)
+      : {bgColor: "var(--cs-avatar-default-bg-color)", textColor: "var(--cs-avatar-default-text-color)"};
 });
 
 const badgeColor = computed(() => {
-  return props.isOnline ? "#4CAF50" : "#393939";
+  return props.params.isOnline ? "var(--cs-badge-online-bg-color)" : "var(--cs-badge-offline-bg-color)";
 });
 
-const isAvatarUrl = computed(() => props.avatarUrl !== null)
+const isAvatarUrl = computed(() => props.params.avatarUrl);
 
 const badgeBorderColor = computed(() => {
-  return props.isCurrent ? "#293632" : "#212529";
+  return props.isCurrent ? "var(--cs-badge-current-bg-color)" : "var(--cs-badge-default-bg-color)";
 });
 </script>
 
 
 <template>
-  <div
-      class="avatar-container"
-      :style="{ backgroundColor: colors.bgColor, color: colors.textColor }"
-  >
+  <div class="avatar-container"
+       :style="{ backgroundColor: colors.bgColor, color: colors.textColor }">
     <div class="status-badge" :style="{ backgroundColor: badgeColor, borderColor: badgeBorderColor }"></div>
-    <img v-if="isAvatarUrl" :src="avatarUrl" :alt="displayName" class="avatar-image"/>
+    <img v-if="isAvatarUrl" :src="props.params.avatarUrl" :alt="props.params.displayName" class="avatar-image"/>
     <span v-else class="avatar-initials">{{ initials }}</span>
   </div>
 </template>
@@ -53,8 +50,8 @@ const badgeBorderColor = computed(() => {
 <style scoped>
 .avatar-container {
   position: relative;
-  width: 50px;
-  height: 50px;
+  width: 46px;
+  height: 46px;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -79,7 +76,7 @@ const badgeBorderColor = computed(() => {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  border: 4px solid #212529;
+  border: 4px solid var(--cs-badge-default-bg-color);
   box-sizing: content-box;
   transition: border-color 0.3s ease;
 }

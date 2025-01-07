@@ -7,6 +7,7 @@ import AppLayout from "@/layouts/AppLayout.vue";
 import {auth} from "@/firebase";
 import {useUserStore} from "@/stores/user.ts";
 import AppView from "@/views/AppView.vue";
+import ChatView from "@/views/ChatView.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -40,9 +41,14 @@ const router = createRouter({
             children: [
                 {
                     name: 'app',
-                    path: 'app',
+                    path: '',
                     component: AppView,
                 },
+                {
+                    name: "chat",
+                    path: "chat/:id",
+                    component: ChatView
+                }
             ]
         }
     ],

@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import Logo from "@/components/Logo.vue";
+import SearchPanelComponent from "@/components/SearchPanelComponent.vue";
+import {reactive, ref} from "vue";
 import ChatListItem from "@/components/ChatListItem.vue";
-import {ref} from "vue";
-import {useRouter} from "vue-router";
-import {Search} from "@vicons/carbon";
-import SearchModal from "@/components/SearchModal.vue";
 
 const chats = ref([
   {
@@ -106,52 +103,54 @@ const chats = ref([
 
 ]);
 
-const currentChatUid = ref<null | string>(null);
+const search = ref("")
+const result = reactive([])
 
-const router = useRouter();
+const handleSearchUpdate = (value: string) => {
+  search.value = value
+  if (value.length < 3) {
+    result.splice(0, result.length)
+    return
+  }
+
+  const res = chats.value.filter((chat) => {
+    return true
+  })
+
+  result.splice(0, result.length, ...res)
+}
 
 const handleChatClick = (uid: string) => {
-  currentChatUid.value = uid;
-  router.push(`/chat/${uid}`);
-};
-
-const showSearchModal = ref(false);
-const handleSearchClick = () => {
-  showSearchModal.value = true;
-};
+  // TODO: Implement chat click handler
+}
 
 </script>
 
 <template>
-  <div class="py-3">
-    <div class="header-container mb-3 p-3 d-flex justify-content-between align-items-center">
-      <Logo/>
-      <div class="div" @click="handleSearchClick">
-        <n-button text>
-          <n-icon size="32">
-            <Search/>
-          </n-icon>
-        </n-button>
-      </div>
-    </div>
-    <n-scrollbar style="max-height: calc(100vh - 224px)" trigger="none">
-      <div class="mb-1 pe-3" v-for="chat in chats">
+  <n-card class="modal-card" :bordered="false" size="huge" role="dialog" aria-modal="true">
+    <SearchPanelComponent @searchValueUpdated="handleSearchUpdate"/>
+
+    <n-scrollbar v-if="result.length" trigger="none" class="mt-3" style="max-height: 38vh">
+      <div class="mb-1" v-for="chat in result">
         <ChatListItem class="mb-0" :uid="chat.uid" :displayName="chat.displayName" :username="chat.username"
                       :avatarKey="chat.avatarKey" :isOnline="chat.isOnline"
-                      :unreadMessagesCount="chat.unreadMessagesCount"
                       :isCurrent="currentChatUid === chat.uid" @click="handleChatClick"/>
       </div>
     </n-scrollbar>
-  </div>
-
-  <n-modal v-model:show="showSearchModal">
-    <SearchModal/>
-  </n-modal>
+    <div v-else class="text-muted text-center pt-4">
+      <i><h6>Who seeks shall find...</h6></i>
+    </div>
+  </n-card>
 </template>
 
 <style scoped>
-.header-container {
+.modal-card {
+  width: 60%;
+  max-width: 600px;
+  margin-top: 15vh;
   background-color: var(--cs-card-bg-color);
   border-radius: 16px;
+  max-height: 60vh;
+  transition: max-height 3s ease-in-out;
 }
 </style>

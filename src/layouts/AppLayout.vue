@@ -19,7 +19,7 @@ import MenuComponent from "@/components/MenuComponent.vue";
 <style scoped>
 .sidebar {
   margin: 0;
-  padding: 48px calc(48px - 1rem) 48px 48px;
+  padding: 0.6rem 1.2rem 1.4rem 1.4rem;
   width: 400px;
   position: fixed;
   height: 100%;
@@ -34,9 +34,8 @@ div.content {
 
 .content-inner {
   background-color: #272727;
-  margin: 24px 24px 24px 0;
-  border-radius: 24px;
-  padding: 24px;
+  margin: 1.4rem 1.4rem 1.4rem 0;
+  border-radius: 16px;
   height: calc(100vh - 50px);
 }
 
