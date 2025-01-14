@@ -18,12 +18,16 @@ const props = defineProps({
 
 console.log(props.chatAgg);
 
-const emits = defineEmits(["click"]);
+const emits = defineEmits(["click", "clickUserProfile"]);
 
 const isHover = ref(props.isCurrent);
 
 const handleClick = () => {
-  emits("click", props.chat.id);
+  if (props.chatAgg.chat) {
+    emits("click", props.chatAgg.chat.id);
+  } else if (props.chatAgg.otherUserProfile) {
+    emits("clickUserProfile", props.chatAgg.otherUserProfile.id);
+  }
 };
 
 const displayName = computed(() => {
