@@ -7,8 +7,6 @@ import {Search} from "@vicons/carbon";
 import SearchModal from "@/components/SearchModal.vue";
 import {useChatStore} from "@/stores/chats.ts";
 import {DEFAULT_BADGE_COLORS} from "@/utils/avatar_badge.ts";
-import ProfileModal from "@/components/ProfileModal.vue";
-import {PrivateChatAggregate} from "@/services/entities.ts";
 
 const chatStore = useChatStore();
 
@@ -18,15 +16,9 @@ const currentChatUid = ref<null | string>(null);
 
 const router = useRouter();
 
-const showTemp = ref(false);
-const temp = ref<null| PrivateChatAggregate>(null)
-
 const handleChatClick = (uid: string) => {
   currentChatUid.value = uid;
-  // router.push(`/chat/${uid}`);
-
-  showTemp.value = true;
-  temp.value = chats[0].otherUserProfile;
+  router.push(`/chat/${uid}`);
 };
 
 const showSearchModal = ref(false);
@@ -63,10 +55,6 @@ onMounted(async () => {
 
   <n-modal v-model:show="showSearchModal">
     <SearchModal/>
-  </n-modal>
-
-  <n-modal v-model:show="showTemp">
-    <ProfileModal :user-profile="temp"/>
   </n-modal>
 </template>
 
