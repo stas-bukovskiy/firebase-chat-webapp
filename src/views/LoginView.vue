@@ -57,7 +57,7 @@ const handleValidateClick = (e: MouseEvent) => {
       loading.value = true
       signInWithEmailAndPassword(auth, loginParams.email, loginParams.password)
           .then(() => {
-            router.push('/app')
+            router.push('/')
           })
           .catch((error) => {
             console.error(error)

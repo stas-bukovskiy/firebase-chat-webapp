@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type {PropType} from "vue";
-import type {AvatarParamsInterface} from "@/services/interfaces.ts";
-import Avatar from "@/components/Avatar.vue";
+import type {AvatarParamsInterface} from "@/services/params.ts";
+import Avatar from "@/components/UserAvatar.vue";
 import {formatUtcTimestamp} from "../utils/datetime.ts";
 import {Checkmark20Filled} from "@vicons/fluent";
 

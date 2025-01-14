@@ -20,6 +20,9 @@ export const useUserStore = defineStore('user', {
         },
         isNotCompleted() {
             return !this.user.firstName
+        },
+        uid() {
+            return this.user.uid
         }
     },
     actions: {
@@ -44,8 +47,16 @@ export const useUserStore = defineStore('user', {
                 return user
             }
         },
-        setUser(user: { firstName: string, lastName: string, email: string, uid: string, createdAt: string }) {
+        setUser(user: {
+            firstName: string,
+            username: string,
+            lastName: string,
+            email: string,
+            uid: string,
+            createdAt: string
+        }) {
             this.user.uid = user.uid
+            this.user.username = user.username
             this.user.firstName = user.firstName
             this.user.lastName = user.lastName
             this.user.email = user.email

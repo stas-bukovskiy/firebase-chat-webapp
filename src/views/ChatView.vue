@@ -4,7 +4,7 @@ import {useRoute} from "vue-router";
 import {ref, watch} from "vue";
 import {Star24Filled, Star28Regular, MoreHorizontal24Filled} from '@vicons/fluent';
 import ChatComponent from "@/components/ChatComponent.vue";
-import Avatar from "@/components/Avatar.vue";
+import Avatar from "@/components/UserAvatar.vue";
 
 const route = useRoute();
 const chatUid = ref(route.params.id);
@@ -35,9 +35,10 @@ const handleStarClick = () => {
 <template>
   <!--Chat header-->
   <div class="chat-header px-4 py-3 d-flex justify-content-between align-items-baseline">
-    <div class="d-flex align-items-baseline gap-3">
+    <div class="d-flex align-items-center">
       <Avatar :params="avatar"/>
-      <h3 class="mb-0">{{ chat.displayName }}</h3>
+      <h3 class="mb-0 ms-3">{{ chat.displayName }}</h3>
+      <!--      <span class="text-muted chat-username">@{{ chat.username }}</span>-->
     </div>
     <div class="">
       <n-button text style="font-size: 32px" class="me-3" @click="handleStarClick">
@@ -70,5 +71,12 @@ const handleStarClick = () => {
   display: flex;
   flex-direction: column;
   height: calc(100vh - (2 * 48px + 2.4rem));
+}
+
+.chat-username {
+  border-left: 2px solid var(--cs-sub-card-bg-color);
+  padding-left: 10px;
+  margin-left: 10px;
+  line-height: 1.2;
 }
 </style>

@@ -1,127 +1,73 @@
 <script setup lang="ts">
 import SearchPanelComponent from "@/components/SearchPanelComponent.vue";
-import {reactive, ref} from "vue";
+import {computed, reactive, ref} from "vue";
 import ChatListItem from "@/components/ChatListItem.vue";
+import {type ChatAggregate, PrivateChatAggregate, UserProfileEntity} from "@/services/entities.ts";
+import {useChatStore} from "@/stores/chats.ts";
+import {collection, query, where, orderBy, limit, getDocs} from "firebase/firestore";
+import {db} from "@/firebase";
+import {generateKeywords, generateUserKeywords} from "@/utils/keywords.ts";
+import {useUserStore} from "@/stores/user.ts";
+import {CARD_BADGE_COLORS} from "@/utils/avatar_badge.ts";
 
-const chats = ref([
-  {
-    uid: "1",
-    displayName: "John Doe",
-    username: "test.user.1",
-    avatarKey: "test.user.1@mail.com",
-    isOnline: true,
-    unreadMessagesCount: 0,
-  },
-  {
-    uid: "2",
-    displayName: "Jane Doe",
-    username: "test.user.2",
-    avatarKey: "test.user.2.mail.com",
-    isOnline: false,
-    unreadMessagesCount: 3,
-  },
-  {
-    uid: "3",
-    displayName: "Bill Gates",
-    username: "test.user.2",
-    avatarKey: "test.user.3.mail.com",
-    isOnline: false,
-    unreadMessagesCount: 20,
-  },
-  {
-    uid: "4",
-    displayName: "Elon Musk",
-    username: "test.user.4",
-    avatarKey: "test.user.4.mail.com",
-    isOnline: true,
-    unreadMessagesCount: 0,
-  },
-  {
-    uid: "5",
-    displayName: "Jeff Bezos",
-    username: "test.user.5",
-    avatarKey: "test.user.5.mail.com",
-    isOnline: true,
-    unreadMessagesCount: 0,
-  },
-  {
-    uid: "6",
-    displayName: "Mark Zuckerberg",
-    username: "test.user.6",
-    avatarKey: "test.user.6.mail.com",
-    isOnline: false,
-    unreadMessagesCount: 0,
-  },
-  {
-    uid: "1",
-    displayName: "John Doe",
-    username: "test.user.1",
-    avatarKey: "test.user.1@mail.com",
-    isOnline: true,
-    unreadMessagesCount: 0,
-  },
-  {
-    uid: "2",
-    displayName: "Jane Doe",
-    username: "test.user.2",
-    avatarKey: "test.user.2.mail.com",
-    isOnline: false,
-    unreadMessagesCount: 3,
-  },
-  {
-    uid: "3",
-    displayName: "Bill Gates",
-    username: "test.user.2",
-    avatarKey: "test.user.3.mail.com",
-    isOnline: false,
-    unreadMessagesCount: 20,
-  },
-  {
-    uid: "4",
-    displayName: "Elon Musk",
-    username: "test.user.4",
-    avatarKey: "test.user.4.mail.com",
-    isOnline: true,
-    unreadMessagesCount: 0,
-  },
-  {
-    uid: "5",
-    displayName: "Jeff Bezos",
-    username: "test.user.5",
-    avatarKey: "test.user.5.mail.com",
-    isOnline: true,
-    unreadMessagesCount: 0,
-  },
-  {
-    uid: "6",
-    displayName: "Mark Zuckerberg",
-    username: "test.user.6",
-    avatarKey: "test.user.6.mail.com",
-    isOnline: false,
-    unreadMessagesCount: 0,
-  },
+const resultLimit = 10;
 
-]);
 
 const search = ref("")
-const result = reactive([])
+const usersResult = reactive<ChatAggregate[]>([])
 
-const handleSearchUpdate = (value: string) => {
-  search.value = value
+const chatStore = useChatStore();
+const userStore = useUserStore();
+
+const handleSearchUpdate = async (value: string) => {
+  search.value = value.toLowerCase()
+  await searchUsers(value)
+}
+
+const searchUsers = async (value: string) => {
   if (value.length < 3) {
-    result.splice(0, result.length)
+    usersResult.splice(0, usersResult.length)
     return
   }
 
-  const res = chats.value.filter((chat) => {
-    return true
-  })
+  const usersQuery = query(collection(db, "users"),
+      where("keywords", "array-contains", value),
+      orderBy("firstName", "desc"), orderBy("lastName", "desc"),
+      limit(resultLimit)).withConverter(UserProfileEntity.converter)
+  const usersSnapshot = await getDocs(usersQuery)
 
-  result.splice(0, result.length, ...res)
+  const result = usersSnapshot.docs
+      .filter(doc => {
+        const myChatIndex = myChatsResult.value.find((chatAgg: ChatAggregate) => {
+          return !chatAgg.chat.isGroup && chatAgg.otherUserProfile.id === doc.id
+        })
+
+
+        return !myChatIndex && doc.id !== userStore.user.username;
+      })
+      .map(doc => {
+        return new PrivateChatAggregate({isGroup: false}, doc.data(), null);
+      })
+
+  usersResult.splice(0, usersResult.length, ...result)
 }
 
-const handleChatClick = (uid: string) => {
-  // TODO: Implement chat click handler
+const myChatsResult = computed(() => {
+  if (search.value.length < 3) {
+    return []
+  }
+
+  return chatStore.getChats.filter(chatAgg => {
+    if (chatAgg.chat.isGroup) {
+      return generateKeywords(chatAgg.chat.groupName).includes(search.value);
+    }
+    return generateUserKeywords(chatAgg.otherUserProfile).includes(search.value);
+  }).slice(0, resultLimit);
+})
+
+
+const handleMyChatClick = (uid: string) => {
+
 }
 
 </script>
@@ -130,11 +76,16 @@ const handleChatClick = (uid: string) => {
   <n-card class="modal-card" :bordered="false" size="huge" role="dialog" aria-modal="true">
     <SearchPanelComponent @searchValueUpdated="handleSearchUpdate"/>
 
-    <n-scrollbar v-if="result.length" trigger="none" class="mt-3" style="max-height: 38vh">
-      <div class="mb-1" v-for="chat in result">
-        <ChatListItem class="mb-0" :uid="chat.uid" :displayName="chat.displayName" :username="chat.username"
-                      :avatarKey="chat.avatarKey" :isOnline="chat.isOnline"
-                      :isCurrent="currentChatUid === chat.uid" @click="handleChatClick"/>
+    <n-scrollbar v-if="myChatsResult.length" trigger="none" class="mt-3" style="max-height: 46vh">
+      <n-divider v-if="myChatsResult.length" class="my-1">My chats</n-divider>
+      <div class="mb-1" v-for="chat in myChatsResult">
+        <ChatListItem class="mb-0" :chatAgg="chat" :isCurrent="false"
+                      @click="handleMyChatClick" :badgeBorderColors="CARD_BADGE_COLORS"/>
+      </div>
+      <n-divider v-if="myChatsResult.length" class="my-1">All Users</n-divider>
+      <div class="mb-1" v-for="chat in usersResult">
+        <ChatListItem class="mb-0" :chatAgg="chat" :isCurrent="false"
+                      @click="handleMyChatClick" :badgeBorderColors="CARD_BADGE_COLORS"/>
       </div>
     </n-scrollbar>
     <div v-else class="text-muted text-center pt-4">

@@ -1,110 +1,16 @@
 <script setup lang="ts">
 import Logo from "@/components/Logo.vue";
 import ChatListItem from "@/components/ChatListItem.vue";
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
 import {Search} from "@vicons/carbon";
 import SearchModal from "@/components/SearchModal.vue";
+import {useChatStore} from "@/stores/chats.ts";
+import {DEFAULT_BADGE_COLORS} from "@/utils/avatar_badge.ts";
 
-const chats = ref([
-  {
-    uid: "1",
-    displayName: "John Doe",
-    username: "test.user.1",
-    avatarKey: "test.user.1@mail.com",
-    isOnline: true,
-    unreadMessagesCount: 0,
-  },
-  {
-    uid: "2",
-    displayName: "Jane Doe",
-    username: "test.user.2",
-    avatarKey: "test.user.2.mail.com",
-    isOnline: false,
-    unreadMessagesCount: 3,
-  },
-  {
-    uid: "3",
-    displayName: "Bill Gates",
-    username: "test.user.2",
-    avatarKey: "test.user.3.mail.com",
-    isOnline: false,
-    unreadMessagesCount: 20,
-  },
-  {
-    uid: "4",
-    displayName: "Elon Musk",
-    username: "test.user.4",
-    avatarKey: "test.user.4.mail.com",
-    isOnline: true,
-    unreadMessagesCount: 0,
-  },
-  {
-    uid: "5",
-    displayName: "Jeff Bezos",
-    username: "test.user.5",
-    avatarKey: "test.user.5.mail.com",
-    isOnline: true,
-    unreadMessagesCount: 0,
-  },
-  {
-    uid: "6",
-    displayName: "Mark Zuckerberg",
-    username: "test.user.6",
-    avatarKey: "test.user.6.mail.com",
-    isOnline: false,
-    unreadMessagesCount: 0,
-  },
-  {
-    uid: "1",
-    displayName: "John Doe",
-    username: "test.user.1",
-    avatarKey: "test.user.1@mail.com",
-    isOnline: true,
-    unreadMessagesCount: 0,
-  },
-  {
-    uid: "2",
-    displayName: "Jane Doe",
-    username: "test.user.2",
-    avatarKey: "test.user.2.mail.com",
-    isOnline: false,
-    unreadMessagesCount: 3,
-  },
-  {
-    uid: "3",
-    displayName: "Bill Gates",
-    username: "test.user.2",
-    avatarKey: "test.user.3.mail.com",
-    isOnline: false,
-    unreadMessagesCount: 20,
-  },
-  {
-    uid: "4",
-    displayName: "Elon Musk",
-    username: "test.user.4",
-    avatarKey: "test.user.4.mail.com",
-    isOnline: true,
-    unreadMessagesCount: 0,
-  },
-  {
-    uid: "5",
-    displayName: "Jeff Bezos",
-    username: "test.user.5",
-    avatarKey: "test.user.5.mail.com",
-    isOnline: true,
-    unreadMessagesCount: 0,
-  },
-  {
-    uid: "6",
-    displayName: "Mark Zuckerberg",
-    username: "test.user.6",
-    avatarKey: "test.user.6.mail.com",
-    isOnline: false,
-    unreadMessagesCount: 0,
-  },
+const chatStore = useChatStore();
 
-]);
+const chats = chatStore.getChats;
 
 const currentChatUid = ref<null | string>(null);
 
@@ -119,6 +25,11 @@ const showSearchModal = ref(false);
 const handleSearchClick = () => {
   showSearchModal.value = true;
 };
+
+
+onMounted(async () => {
+  await chatStore.fetchUserChats();
+});
 
 </script>
 
@@ -136,9 +47,7 @@ const handleSearchClick = () => {
     </div>
     <n-scrollbar style="max-height: calc(100vh - 224px)" trigger="none">
       <div class="mb-1 pe-3" v-for="chat in chats">
-        <ChatListItem class="mb-0" :uid="chat.uid" :displayName="chat.displayName" :username="chat.username"
-                      :avatarKey="chat.avatarKey" :isOnline="chat.isOnline"
-                      :unreadMessagesCount="chat.unreadMessagesCount"
+        <ChatListItem class="mb-0" :chatAgg="chat" :badgeBorderColors="DEFAULT_BADGE_COLORS"
                       :isCurrent="currentChatUid === chat.uid" @click="handleChatClick"/>
       </div>
     </n-scrollbar>

@@ -33,6 +33,10 @@ export function generateAvatarColors(fullName: string): { bgColor: string, textC
 }
 
 export function generateDisplayName(params: { firstName: string, lastName?: string }): string {
+    if (!params) {
+        return '';
+    }
+
     return params.lastName ? `${params.firstName} ${params.lastName}` : params.firstName;
 }
 
@@ -40,6 +44,6 @@ export function generateDisplayName(params: { firstName: string, lastName?: stri
 export function generateInitials(fullName: string): string {
     const names = fullName.trim().split(/\s+/);
     return names.length > 1
-        ? names[0][0].toUpperCase() + names[names.length - 1][0].toUpperCase()
+        ? names[0][0].toUpperCase() + names[1][0].toUpperCase()
         : names[0][0].toUpperCase();
 }

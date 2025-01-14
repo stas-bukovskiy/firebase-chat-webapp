@@ -55,27 +55,27 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-    // const userStore = useUserStore();
-    //
-    // const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-    // const requireCompleteProfile = to.matched.some(record => record.meta.requireCompleteProfile);
-    // if (requiresAuth) {
-    //     const user = auth.currentUser;
-    //     if (user) {
-    //         if (requireCompleteProfile) {
-    //             const userProfile = await userStore.fetchUserProfileByEmail(user.email);
-    //             if (!userProfile) {
-    //                 next({name: 'complete-profile'})
-    //             }
-    //         }
-    //         next()
-    //     } else {
-    //         next({name: 'login'})
-    //     }
-    // } else {
-    //     next()
-    // }
-    next()
+    const userStore = useUserStore();
+
+    const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+    const requireCompleteProfile = to.matched.some(record => record.meta.requireCompleteProfile);
+    if (requiresAuth) {
+        const user = auth.currentUser;
+        if (user) {
+            if (requireCompleteProfile) {
+                const userProfile = await userStore.fetchUserProfileByEmail(user.email);
+                if (!userProfile) {
+                    next({name: 'complete-profile'})
+                }
+            }
+            next()
+        } else {
+            next({name: 'login'})
+        }
+    } else {
+        next()
+    }
+    // next()
 })
 
 export default router

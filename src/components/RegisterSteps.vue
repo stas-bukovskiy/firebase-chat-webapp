@@ -13,6 +13,7 @@ import {useNotification} from "naive-ui";
 import {nowToUTCTimestamp} from "@/utils/datetime.ts";
 import {useUserStore} from "@/stores/user.ts";
 import UploadAvatar from "@/components/UploadAvatar.vue";
+import {generateUserKeywords} from "@/utils/keywords.ts";
 
 const props = defineProps({
   initialState: {
@@ -127,8 +128,10 @@ const createUserProfile = async () => {
     // Add user data to the Firestore 'users' collection
     const userDocRef = doc(db, "users", profileParams.username);
     const userToCreate = {
+      username: profileParams.username,
       firstName: profileParams.firstName,
       lastName: profileParams.lastName,
+      keywords: generateUserKeywords(profileParams),
       email: auth.currentUser.email,
       uid: auth.currentUser.uid,
       photoUrl: profileParams.photoUrl,
@@ -186,7 +189,7 @@ const handleCreateProfileDetailsClick = (e: MouseEvent) => {
       createUserProfile()
           .then((user) => {
             userStore.setUser(user)
-            router.push('/app')
+            router.push('/')
           })
           .catch((error) => {
             notifyError(notification, error)
