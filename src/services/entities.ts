@@ -18,18 +18,12 @@ export class UserChatEntity extends Entity {
     }
 }
 
-// MessageEntity is a model that represents a message in a chat
-export interface MessageEntity {
-
-}
-
 export class ChatEntity extends Entity {
 
     isGroup: boolean;
     groupName?: string;
     groupImageUrl?: string;
 
-    messages: Array<MessageEntity>;
     members: Array<DocumentReference>;
 
     createdBy: DocumentReference;
@@ -94,5 +88,54 @@ export class GroupChatAggregate implements ChatAggregate {
     constructor(chat: ChatEntity, userChat: UserChatEntity) {
         this.chat = chat;
         this.userChat = userChat;
+    }
+}
+
+export enum MessageStatus {
+    SENT = "sent",
+    RECEIVED = "received",
+    READ = "read",
+}
+
+// MessageEntity is a model that represents a message in a chat
+export class MessageEntity extends Entity {
+    text: string;
+    fromUser: DocumentReference;
+    status: MessageStatus;
+    attachmentsUrl: Array<string>;
+    createdAt: number;
+
+    isStacked: boolean;
+
+    constructor(data: MessageEntity) {
+        super(data);
+        this.text = data.text;
+        this.fromUser = data.fromUser;
+        this.status = data.status;
+        this.attachmentsUrl = data.attachmentsUrl;
+        this.createdAt = data.createdAt;
+        this.isStacked = false;
+    }
+
+    protected static transformFromFirestore(data: FirebaseFirestore.DocumentData): MessageEntity {
+        return {
+            text: String(data.text),
+            fromUser: data.fromUser,
+            status: data.status,
+            attachmentsUrl: data.attachmentsUrl || [],
+            createdAt: parseInt(data.createdAt),
+
+            isStacked: false,
+        }
+    }
+
+    protected static transformToFirestore(data: MessageEntity): FirebaseFirestore.DocumentData {
+        return {
+            text: data.text,
+            fromUser: data.fromUser,
+            status: data.status,
+            attachmentsUrl: data.attachmentsUrl,
+            createdAt: data.createdAt,
+        }
     }
 }

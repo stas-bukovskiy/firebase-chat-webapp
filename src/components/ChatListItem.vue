@@ -3,9 +3,8 @@
 import {computed, type PropType, ref} from "vue";
 import {generateDisplayName} from "@/utils/avatars.ts";
 import type {ChatAggregate} from "@/services/entities.ts";
-import UserAvatar from "@/components/UserAvatar.vue";
-import GroupAvatar from "@/components/GroupAvatar.vue";
 import type {AvatarBadgeBorderColors} from "@/utils/avatar_badge.ts";
+import Avatar from "@/components/Avatar.vue";
 
 const props = defineProps({
   chatAgg: Object as PropType<ChatAggregate>,
@@ -16,15 +15,13 @@ const props = defineProps({
   }
 });
 
-console.log(props.chatAgg);
-
 const emits = defineEmits(["click", "clickUserProfile"]);
 
 const isHover = ref(props.isCurrent);
 
 const handleClick = () => {
-  if (props.chatAgg.chat) {
-    emits("click", props.chatAgg.chat.id);
+  if (props.chatAgg?.userChat) {
+    emits("click", props.chatAgg.userChat.id);
   } else if (props.chatAgg.otherUserProfile) {
     emits("clickUserProfile", props.chatAgg.otherUserProfile.id);
   }
@@ -46,9 +43,8 @@ const isGroup = computed(() => {
   <div class="chat-item d-flex w-100 align-items-center" @mouseover="isHover = true" @mouseleave="isHover = false"
        @click="handleClick" :style="{ backgroundColor: isHover || props.isCurrent ? '#293632' : '' }">
     <div>
-      <GroupAvatar v-if="isGroup" :chatAgg="props.chatAgg"/>
-      <UserAvatar v-else :userProfile="props.chatAgg.otherUserProfile" :isCurrent="isHover || props.isCurrent"
-                  :badgeBorderColors="props.badgeBorderColors"/>
+      <Avatar :chatAgg="props.chatAgg" :isCurrent="isHover || props.isCurrent"
+              :badgeBorderColors="props.badgeBorderColors"/>
     </div>
     <div class="ms-3 d-flex align-items-center justify-content-between" style="width: 100%">
       <div class="">

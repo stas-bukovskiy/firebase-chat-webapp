@@ -1,39 +1,44 @@
 <script setup lang="ts">
-import type {PropType} from "vue";
-import type {AvatarParamsInterface} from "@/services/params.ts";
+import {computed, type PropType} from "vue";
 import Avatar from "@/components/UserAvatar.vue";
 import {formatUtcTimestamp} from "../utils/datetime.ts";
 import {Checkmark20Filled} from "@vicons/fluent";
+import type {MessageEntity} from "@/services/entities.ts";
+import {useCurrentUserStore} from "@/stores/current-user.ts";
+import {useUserStore} from "@/stores/users.ts";
+import {SUB_CARD_BADGE_COLORS} from "@/utils/avatar_badge.ts";
 
 const props = defineProps({
-  avatar: Object as PropType<AvatarParamsInterface>,
-  message: Object as PropType<{
-    uid: string;
-    text: string;
-    fromUid: string;
-    status: string;
-    isStacked: boolean,
-    createdAt: number,
-  }>,
+  message: Object as PropType<MessageEntity>,
   isStacked: Boolean,
 });
 
-console.log(props.message.fromUid);
+console.log("MessageComp", props.message);
 
-const currentUserUid = "2";
-const fromCurrentUser = props.message.fromUid === currentUserUid;
+const currentUserStore = useCurrentUserStore();
+const usersStore = useUserStore();
+
+const fromCurrentUser = computed(() => props.message?.fromUser?.id === currentUserStore.currentUser.username);
+
+const userProfile = computed(() => {
+  if (fromCurrentUser.value) {
+    return currentUserStore.currentUser;
+  }
+
+  return usersStore.fetchByUsername(props.message.fromUser.id);
+});
 
 </script>
 
 <template>
   <div class="message-container">
     <div class="message d-flex justify-content-between"
-         :style="!props.message.isStacked ? {paddingBottom: 'calc(1rem + 25px)', marginBottom: 'calc(1rem + 25px)'} : {}">
+         :style="!props.isStacked ? {paddingBottom: 'calc(0.1rem + 25px)', marginBottom: 'calc(1rem + 25px)'} : {}">
       <div class="message-text d-flex flex-column"
-           :style="props.message.isStacked ? {padding: '1rem 1rem 0.5rem'} : {padding: '1rem'}">
+           :style="props.isStacked ? {padding: '1rem 1rem 0.5rem'} : {padding: '1rem'}">
         <span>{{ props.message.text }}</span>
 
-        <div v-if="fromCurrentUser" :class="props.message.isStacked ? 'mt-2' : 'message-status-absolute'">
+        <div v-if="fromCurrentUser" :class="props.isStacked ? 'mt-2' : 'message-status-absolute'">
           <div v-if="message.status === 'sending'" class="spinner-border spinner-border-sm"
                style="color: var(--cs-primary-color)"/>
           <div v-else>
@@ -49,9 +54,9 @@ const fromCurrentUser = props.message.fromUid === currentUserUid;
       </div>
     </div>
 
-    <div v-if="!props.message.isStacked" class="message-sender"
+    <div v-if="!props.isStacked" class="message-sender"
          :style="fromCurrentUser ? {right: '30px'} : {left: '30px'}">
-      <Avatar :params="props.avatar"/>
+      <Avatar :userProfile="userProfile" :badgeBorderColors="SUB_CARD_BADGE_COLORS"/>
     </div>
   </div>
 </template>
@@ -70,7 +75,7 @@ const fromCurrentUser = props.message.fromUid === currentUserUid;
   background-color: var(--cs-sub-card-bg-color);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
 }
 
 .message-sender {

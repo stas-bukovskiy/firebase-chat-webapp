@@ -5,9 +5,9 @@ import RegisterView from "@/views/RegisterView.vue";
 import CompleteProfileView from "@/views/CompleteProfileView.vue";
 import AppLayout from "@/layouts/AppLayout.vue";
 import {auth} from "@/firebase";
-import {useUserStore} from "@/stores/user.ts";
 import AppView from "@/views/AppView.vue";
 import ChatView from "@/views/ChatView.vue";
+import {useCurrentUserStore} from "@/stores/current-user.ts";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -55,7 +55,7 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-    const userStore = useUserStore();
+    const currentUserStore = useCurrentUserStore();
 
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
     const requireCompleteProfile = to.matched.some(record => record.meta.requireCompleteProfile);
@@ -63,7 +63,7 @@ router.beforeEach(async (to, from, next) => {
         const user = auth.currentUser;
         if (user) {
             if (requireCompleteProfile) {
-                const userProfile = await userStore.fetchUserProfileByEmail(user.email);
+                const userProfile = await currentUserStore.fetchUserByEmail(user.email);
                 if (!userProfile) {
                     next({name: 'complete-profile'})
                 }

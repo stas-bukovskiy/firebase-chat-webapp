@@ -7,8 +7,8 @@ import {useChatStore} from "@/stores/chats.ts";
 import {collection, query, where, orderBy, limit, getDocs} from "firebase/firestore";
 import {db} from "@/firebase";
 import {generateKeywords, generateUserKeywords} from "@/utils/keywords.ts";
-import {useUserStore} from "@/stores/user.ts";
 import {CARD_BADGE_COLORS} from "@/utils/avatar_badge.ts";
+import {useCurrentUserStore} from "@/stores/current-user.ts";
 
 const resultLimit = 10;
 
@@ -17,7 +17,7 @@ const search = ref("")
 const usersResult = reactive<ChatAggregate[]>([])
 
 const chatStore = useChatStore();
-const userStore = useUserStore();
+const currentUserStore = useCurrentUserStore();
 
 const handleSearchUpdate = async (value: string) => {
   search.value = value.toLowerCase()
@@ -43,7 +43,7 @@ const searchUsers = async (value: string) => {
         })
 
 
-        return !myChatIndex && doc.id !== userStore.user.username;
+        return !myChatIndex && doc.id !== currentUserStore.currentUser.username;
       })
       .map(doc => {
         return new PrivateChatAggregate({isGroup: false}, doc.data(), null);

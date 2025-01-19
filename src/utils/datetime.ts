@@ -1,21 +1,21 @@
 // 1. Convert Date to UTC timestamp
 export function dateToUTCTimestamp(date: Date): number {
-    return Math.floor(date.getTime() / 1000); // Converts to seconds
+    return Math.floor(date.getTime()); // Converts to seconds
 }
 
 // 2. Convert now Date to UTC timestamp
 export function nowToUTCTimestamp(): number {
-    return Math.floor(Date.now() / 1000); // Converts to seconds
+    return Math.floor(Date.now()); // Converts to seconds
 }
 
 // 3. Convert UTC timestamp to localized Date
 export function utcTimestampToLocalDate(utcTimestamp: number): Date {
-    return new Date(utcTimestamp * 1000); // Converts seconds to milliseconds
+    return new Date(utcTimestamp); // Converts seconds to milliseconds
 }
 
 export function formatUtcTimestamp(timestamp: number): string {
     // Convert the UTC timestamp to a local Date object
-    const date = new Date(timestamp * 1000);
+    const date = new Date(parseInt(timestamp));
     const now = new Date();
 
     // Get the user's locale (default to system locale)

@@ -1,34 +1,36 @@
 <script setup lang="ts">
 
 import {useRoute} from "vue-router";
-import {ref, watch} from "vue";
+import {computed, ref, watch} from "vue";
 import {Star24Filled, Star28Regular, MoreHorizontal24Filled} from '@vicons/fluent';
+import Avatar from "@/components/Avatar.vue";
 import ChatComponent from "@/components/ChatComponent.vue";
-import Avatar from "@/components/UserAvatar.vue";
+import {useChatStore} from "@/stores/chats.ts";
+import {CARD_BADGE_COLORS} from "@/utils/avatar_badge.ts";
+import {generateDisplayName} from "@/utils/avatars.ts";
 
 const route = useRoute();
-const chatUid = ref(route.params.id);
+const chatStore = useChatStore();
+const chatAgg = ref(chatStore.getChatByUserChatId(route.params.id));
 
 watch(() => route.params, (params) => {
-  chatUid.value = params.id;
+  chatAgg.value = chatStore.getChatByUserChatId(params.id);
 });
-
-const chat = ref({
-  uid: "1",
-  displayName: "John Doe",
-  username: "test.user.1",
-  avatarKey: "test.user.1@mail.com",
-  isOnline: true,
-  unreadMessagesCount: 0,
-  isStared: false
-});
-
-const avatar = ref({displayName: "Bill Gates", avatarKey: "test.user.3.mail.com", isOnline: false});
 
 const handleStarClick = () => {
-  chat.value.isStared = !chat.value.isStared;
+  // chat.value.isStared = !chat.value.isStared;
   // TODO: Implement star/unstar logic
 };
+
+const displayName = computed(() => {
+  return chatAgg.value?.chat?.isGroup ?
+      chatAgg.value?.chat?.groupName :
+      generateDisplayName(chatAgg.value?.otherUserProfile);
+});
+
+const isGroup = computed(() => {
+  return chatAgg.value.chat?.isGroup;
+});
 
 </script>
 
@@ -36,14 +38,16 @@ const handleStarClick = () => {
   <!--Chat header-->
   <div class="chat-header px-4 py-3 d-flex justify-content-between align-items-baseline">
     <div class="d-flex align-items-center">
-      <Avatar :params="avatar"/>
-      <h3 class="mb-0 ms-3">{{ chat.displayName }}</h3>
-      <!--      <span class="text-muted chat-username">@{{ chat.username }}</span>-->
+      <Avatar :chatAgg="chatAgg" :badgeBorderColors="CARD_BADGE_COLORS"/>
+      <div class="ms-3">
+        <h5 class="mb-0">{{ displayName }}</h5>
+        <p v-if="!isGroup" class="mb-0 text-muted">@{{ chatAgg?.otherUserProfile?.username }}</p>
+      </div>
     </div>
     <div class="">
       <n-button text style="font-size: 32px" class="me-3" @click="handleStarClick">
         <n-icon>
-          <Star24Filled v-if="chat.isStared"/>
+          <Star24Filled v-if="chatAgg.userChat.isStared"/>
           <Star28Regular v-else/>
         </n-icon>
       </n-button>
@@ -58,7 +62,7 @@ const handleStarClick = () => {
 
   <!--Chat body-->
   <div class="chat-body-layout">
-    <ChatComponent :uid="chatUid"/>
+    <ChatComponent :chatId="chatAgg?.chat?.id"/>
   </div>
 </template>
 

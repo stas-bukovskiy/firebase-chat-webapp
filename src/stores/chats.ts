@@ -9,8 +9,9 @@ import {
     PrivateChatAggregate,
     UserProfileEntity
 } from "@/services/entities.ts";
-import type {UserChatEntity, UserChatsEntity} from "@/services/entities.ts";
-import {useUserStore} from "@/stores/user.ts";
+import {UserChatEntity} from "@/services/entities.ts";
+import {useCurrentUserStore} from "@/stores/current-user.ts";
+import {useUserStore} from "@/stores/users.ts";
 
 export const useChatStore = defineStore("chats", {
     state: () => ({
@@ -25,7 +26,8 @@ export const useChatStore = defineStore("chats", {
                 return;
             }
 
-            const userChatsSnapshot = await getDocs(collection(db, 'userChats', uid, 'chats'));
+            const userChatsRef = collection(db, 'userChats', uid, 'chats').withConverter(UserChatEntity.converter);
+            const userChatsSnapshot = await getDocs(userChatsRef);
 
             userChatsSnapshot.docs.map(async userChatRef => {
                 const userChat = userChatRef.data();
@@ -57,18 +59,25 @@ export const useChatStore = defineStore("chats", {
                 return;
             }
 
-            const userStore = useUserStore();
-            const currentUserId = userStore.user.username
+            const currentUserStore = useCurrentUserStore();
+            const currentUserId = currentUserStore.currentUser.username;
 
             const otherUserId = chat.members.find(member => member.id !== currentUserId).id;
-            const otherUserRef = doc(db, 'users', otherUserId).withConverter(UserProfileEntity.converter);
-            const otherUser = useDocument(otherUserRef);
+
+            const usersStore = useUserStore();
+            const otherUser = usersStore.fetchByUsername(otherUserId);
 
             const privateChat = new PrivateChatAggregate(chat, otherUser, userChat);
             this.userChats.push(privateChat);
         },
     },
     getters: {
-        getChats: (state) => state.userChats
+        getChats: (state) => state.userChats,
+        getChatByUserChatId: (state) => {
+            return (userChatId: string) => {
+                console.log("getChatByUserChatId", userChatId);
+                return state.userChats.find(chat => chat.userChat.id === userChatId);
+            }
+        },
     }
 })

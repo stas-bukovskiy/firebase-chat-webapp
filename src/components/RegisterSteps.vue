@@ -11,9 +11,9 @@ import {runTransaction} from "firebase/firestore";
 import {notifyError, UsernameAlreadyInUseError} from "@/utils/errors.ts";
 import {useNotification} from "naive-ui";
 import {nowToUTCTimestamp} from "@/utils/datetime.ts";
-import {useUserStore} from "@/stores/user.ts";
 import UploadAvatar from "@/components/UploadAvatar.vue";
 import {generateUserKeywords} from "@/utils/keywords.ts";
+import {useCurrentUserStore} from "@/stores/current-user.ts";
 
 const props = defineProps({
   initialState: {
@@ -179,7 +179,7 @@ const handleNewAvatarUrl = (url: string) => {
   profileParams.photoUrl = url
 }
 
-const userStore = useUserStore()
+const currentUserStore = useCurrentUserStore()
 
 const handleCreateProfileDetailsClick = (e: MouseEvent) => {
   e.preventDefault()
@@ -188,7 +188,8 @@ const handleCreateProfileDetailsClick = (e: MouseEvent) => {
       loading.value = true
       createUserProfile()
           .then((user) => {
-            userStore.setUser(user)
+            // todo: check this case
+            currentUserStore.setUser(user)
             router.push('/')
           })
           .catch((error) => {
