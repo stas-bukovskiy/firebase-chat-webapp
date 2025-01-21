@@ -38,7 +38,7 @@ const errors: Map<string, ErrorDetail> = new Map([
     ["auth/invalid-credential", {
         title: "Invalid credential",
         description: "Please check your email and password."
-    }],
+    }]
 ]);
 
 const notNotifyErrors: Set<string> = new Set([
@@ -53,6 +53,10 @@ export function notifyError(notification: NotificationApiInjection, error: Error
 
     console.log("Error code:", error.code, " for ", error);
     const errorDetail = errors.get(errorCode) ?? defaultErrorDetail;
+    notifyErrorDetail(notification, errorDetail);
+}
+
+export function notifyErrorDetail(notification: NotificationApiInjection, errorDetail: ErrorDetail): void {
     notification.error({
         title: errorDetail.title,
         description: errorDetail.description,

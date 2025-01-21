@@ -7,9 +7,12 @@ import type {MessageEntity} from "@/services/entities.ts";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
 import {useUserStore} from "@/stores/users.ts";
 import {SUB_CARD_BADGE_COLORS} from "@/utils/avatar_badge.ts";
+import AttachmentComponent from "@/components/AttachmentComponent.vue";
 
 const props = defineProps({
+  chatId: String,
   message: Object as PropType<MessageEntity>,
+  attachmentsUrl: Array as PropType<string[]>,
   isStacked: Boolean,
 });
 
@@ -36,6 +39,11 @@ const userProfile = computed(() => {
          :style="!props.isStacked ? {paddingBottom: 'calc(0.1rem + 25px)', marginBottom: 'calc(1rem + 25px)'} : {}">
       <div class="message-text d-flex flex-column"
            :style="props.isStacked ? {padding: '1rem 1rem 0.5rem'} : {padding: '1rem'}">
+        <div v-if="props.attachmentsUrl.length" class="d-flex flex-wrap gap-2 mb-2">
+          <AttachmentComponent v-for="(url, index) in props.attachmentsUrl" :key="index" :chatId="props.chatId"
+                               :fileUrl="url"/>
+        </div>
+
         <span>{{ props.message.text }}</span>
 
         <div v-if="fromCurrentUser" :class="props.isStacked ? 'mt-2' : 'message-status-absolute'">

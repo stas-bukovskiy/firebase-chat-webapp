@@ -194,7 +194,8 @@ const computeStacked = (message: MessageEntity, index: number) => {
     </div>
 
     <div v-if="!isInitialLoading && messages" v-for="(message, index) in messages" :key="message.id">
-      <MessageComponent :message="message" :isStacked="computeStacked(message, index)"/>
+      <MessageComponent :message="message"  :chatId="props.chatId" :attachmentsUrl="message.attachmentsUrl"
+                        :isStacked="computeStacked(message, index)"/>
     </div>
   </div>
 

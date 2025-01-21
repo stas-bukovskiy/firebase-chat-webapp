@@ -17,3 +17,17 @@ export function getFileExtension(fileNameOrUrl: string): string {
     }
     return "";
 }
+
+export function getFilePathFromStorageUrl(url: string): string {
+    const urlPath = url.split("?")[0];
+    return decodeURIComponent(urlPath.split("/o/")[1]);
+}
+
+export function getFileNameFromStorageUrl(url: string): string {
+    const filePath = getFilePathFromStorageUrl(url);
+    return filePath.split("/").pop() || "";
+}
+
+export function generateFileKey(fileName: string): string {
+    return Math.random().toString(36).substring(2, 12);
+}

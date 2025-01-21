@@ -3,7 +3,7 @@
     --cs-primary-color: #63e2b7;
 
     --cs-main-bg-color: #1F1F1F;
-    --cs-card-bg-color: #292929;
+    --cs-card-bg-color: rgb(41, 41, 41);
     --cs-sub-card-bg-color: #333333;
 
     --cs-avatar-default-bg-color: var(--cs-primary-color);
