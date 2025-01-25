@@ -10,7 +10,7 @@ import {notifyError} from "@/utils/errors.ts";
 
 
 const loginParams = reactive({
-  email: 'test.user.1@mail.com',
+  email: 'test.user.2@mail.com',
   password: 'Password',
 })
 

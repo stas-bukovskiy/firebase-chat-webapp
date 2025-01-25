@@ -74,7 +74,6 @@ const avatarStyles = computed(() => {
     colors = generateAvatarColors(props.userProfile.username);
   }
 
-  console.log("size", props.size);
   return {
     ...sizeConfigs.get(props.size).avatar,
     backgroundColor: colors.bgColor,

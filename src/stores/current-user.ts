@@ -9,14 +9,17 @@ export const useCurrentUserStore = defineStore('currentUser', {
     }),
     getters: {
         isEmpty() {
-            return !this.user.id
+            return !this.currentUser.id
         },
         isNotCompleted() {
-            return !this.user.firstName
+            return !this.currentUser.firstName
         },
         id() {
-            return this.user.id
-        }
+            return this.currentUser.id
+        },
+        username() {
+            return this.currentUser.username
+        },
     },
     actions: {
         async fetchUserByEmail(email: string) {

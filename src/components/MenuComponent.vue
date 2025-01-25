@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Logo from "@/components/Logo.vue";
 import ChatListItem from "@/components/ChatListItem.vue";
-import {onMounted, ref} from "vue";
+import {onMounted, onUnmounted, ref} from "vue";
 import {useRouter} from "vue-router";
 import {Search} from "@vicons/carbon";
 import SearchModal from "@/components/SearchModal.vue";
@@ -26,9 +26,16 @@ const handleSearchClick = () => {
   showSearchModal.value = true;
 };
 
+let unsubscribeFromUserChats = null;
 
 onMounted(async () => {
-  await chatStore.fetchUserChats();
+  unsubscribeFromUserChats = await chatStore.fetchUserChats();
+});
+
+onUnmounted(() => {
+  if (unsubscribeFromUserChats) {
+    unsubscribeFromUserChats();
+  }
 });
 
 </script>
@@ -54,7 +61,7 @@ onMounted(async () => {
   </div>
 
   <n-modal v-model:show="showSearchModal">
-    <SearchModal/>
+    <SearchModal @onClose="showSearchModal = false"/>
   </n-modal>
 </template>
 

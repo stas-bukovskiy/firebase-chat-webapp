@@ -16,8 +16,6 @@ const props = defineProps({
   isStacked: Boolean,
 });
 
-console.log("MessageComp", props.message);
-
 const currentUserStore = useCurrentUserStore();
 const usersStore = useUserStore();
 

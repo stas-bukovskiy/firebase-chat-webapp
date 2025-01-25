@@ -9,9 +9,13 @@ import {db} from "@/firebase";
 import {generateKeywords, generateUserKeywords} from "@/utils/keywords.ts";
 import {CARD_BADGE_COLORS} from "@/utils/avatar_badge.ts";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
+import {useRouter} from "vue-router";
+import {useNotification} from "naive-ui";
+import {notifyError} from "@/utils/errors.ts";
 
 const resultLimit = 10;
 
+const emit = defineEmits(["onClose"]);
 
 const search = ref("")
 const usersResult = reactive<ChatAggregate[]>([])
@@ -42,12 +46,13 @@ const searchUsers = async (value: string) => {
           return !chatAgg.chat.isGroup && chatAgg.otherUserProfile.id === doc.id
         })
 
-
         return !myChatIndex && doc.id !== currentUserStore.currentUser.username;
       })
       .map(doc => {
         return new PrivateChatAggregate({isGroup: false}, doc.data(), null);
       })
+
+  console.log("Result", result)
 
   usersResult.splice(0, usersResult.length, ...result)
 }
@@ -65,9 +70,23 @@ const myChatsResult = computed(() => {
   }).slice(0, resultLimit);
 })
 
+const router = useRouter();
 
-const handleMyChatClick = (uid: string) => {
+const handleMyChatClick = (id: string) => {
+  router.push({name: "chat", params: {id}})
+  emit("onClose")
+}
 
+const notification = useNotification();
+
+const handleNewChatClick = (username: string) => {
+  chatStore.createPrivateChat(username).then((chatId) => {
+    router.push({name: "chat", params: {id: chatId}})
+  }).catch((error) => {
+    notifyError(notification, error)
+  }).finally(() => {
+    emit("onClose")
+  })
 }
 
 </script>
@@ -76,16 +95,16 @@ const handleMyChatClick = (uid: string) => {
   <n-card class="modal-card" :bordered="false" size="huge" role="dialog" aria-modal="true">
     <SearchPanelComponent @searchValueUpdated="handleSearchUpdate"/>
 
-    <n-scrollbar v-if="myChatsResult.length" trigger="none" class="mt-3" style="max-height: 46vh">
+    <n-scrollbar v-if="myChatsResult.length || usersResult.length" trigger="none" class="mt-3" style="max-height: 46vh">
       <n-divider v-if="myChatsResult.length" class="my-1">My chats</n-divider>
       <div class="mb-1" v-for="chat in myChatsResult">
         <ChatListItem class="mb-0" :chatAgg="chat" :isCurrent="false"
                       @click="handleMyChatClick" :badgeBorderColors="CARD_BADGE_COLORS"/>
       </div>
-      <n-divider v-if="myChatsResult.length" class="my-1">All Users</n-divider>
+      <n-divider v-if="usersResult.length" class="my-1">All Users</n-divider>
       <div class="mb-1" v-for="chat in usersResult">
         <ChatListItem class="mb-0" :chatAgg="chat" :isCurrent="false"
-                      @click="handleMyChatClick" :badgeBorderColors="CARD_BADGE_COLORS"/>
+                      @clickUserProfile="handleNewChatClick" :badgeBorderColors="CARD_BADGE_COLORS"/>
       </div>
     </n-scrollbar>
     <div v-else class="text-muted text-center pt-4">
