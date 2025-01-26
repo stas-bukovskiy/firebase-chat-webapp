@@ -1,13 +1,35 @@
 <script setup lang="ts">
-import {computed, type PropType} from "vue";
+import {computed, onMounted, type PropType} from "vue";
 import {generateAvatarColors, generateDisplayName, generateInitials} from "@/utils/avatars.ts";
 import type {UserProfileEntity} from "@/services/entities.ts";
 import type {AvatarBadgeBorderColors} from "@/utils/avatar_badge.ts";
 
 const sizeConfigs = new Map([
+  ["small", {
+    avatar: {
+      minWidth: "32px",
+      width: "32px",
+      minHeight: "32px",
+      height: "32px",
+      borderRadius: "8px"
+    },
+    avatarInitials: {
+      fontSize: "1.1em"
+    },
+    badge: {
+      top: "-3px",
+      left: "24px",
+      width: "8px",
+      height: "8px",
+      borderRadius: "50%",
+      border: "3px solid var(--cs-badge-default-bg-color)",
+    }
+  }],
   ["default", {
     avatar: {
+      minWidth: "46px",
       width: "46px",
+      minHeight: "46px",
       height: "46px",
       borderRadius: "8px"
     },
@@ -25,16 +47,18 @@ const sizeConfigs = new Map([
   }],
   ["big", {
     avatar: {
-      width: "80px",
-      height: "80px",
-      borderRadius: "14px"
+      minWidth: "64px",
+      width: "64px",
+      minHeight: "64px",
+      height: "64px",
+      borderRadius: "10px"
     },
     avatarInitials: {
-      fontSize: "2.4em"
+      fontSize: "2em"
     },
     badge: {
-      top: "-4px",
-      left: "65px",
+      top: "-5px",
+      left: "50px",
       width: "14px",
       height: "14px",
       borderRadius: "50%",
@@ -55,6 +79,10 @@ const props = defineProps({
     type: String,
     default: "default"
   }
+});
+
+onMounted(() => {
+  console.log('props', props.userProfile);
 });
 
 const initials = computed(() => {

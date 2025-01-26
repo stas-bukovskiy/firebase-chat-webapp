@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import {computed, type PropType} from "vue";
-import Avatar from "@/components/UserAvatar.vue";
+import {computed, onBeforeMount, onMounted, type PropType} from "vue";
 import {formatUtcTimestamp} from "../utils/datetime.ts";
 import {Checkmark20Filled} from "@vicons/fluent";
 import type {MessageEntity} from "@/services/entities.ts";
@@ -8,6 +7,7 @@ import {useCurrentUserStore} from "@/stores/current-user.ts";
 import {useUserStore} from "@/stores/users.ts";
 import {SUB_CARD_BADGE_COLORS} from "@/utils/avatar_badge.ts";
 import AttachmentComponent from "@/components/AttachmentComponent.vue";
+import UserAvatar from "@/components/UserAvatar.vue";
 
 const props = defineProps({
   chatId: String,
@@ -26,7 +26,7 @@ const userProfile = computed(() => {
     return currentUserStore.currentUser;
   }
 
-  return usersStore.fetchByUsername(props.message.fromUser.id);
+  return usersStore.fetchByUsername(props.message.fromUser.id)?.data;
 });
 
 </script>
@@ -62,7 +62,7 @@ const userProfile = computed(() => {
 
     <div v-if="!props.isStacked" class="message-sender"
          :style="fromCurrentUser ? {right: '30px'} : {left: '30px'}">
-      <Avatar :userProfile="userProfile" :badgeBorderColors="SUB_CARD_BADGE_COLORS"/>
+      <UserAvatar :userProfile="userProfile" :isCurrent='false' :badgeBorderColors="SUB_CARD_BADGE_COLORS"/>
     </div>
   </div>
 </template>

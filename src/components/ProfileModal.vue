@@ -24,7 +24,7 @@ const displayName = computed(() => {
     <div class="d-flex justify-content-between">
       <div class="d-flex align-items-center">
         <UserAvatar :userProfile="props.userProfile" :badgeBorderColors="CARD_BADGE_COLORS" size="big"/>
-        <div class="ms-3 d-flex flex-column">
+        <div class="ms-4 d-flex flex-column">
           <h3 class="mb-0">{{ displayName }}</h3>
           <h5 class="mb-0 text-muted">@{{ props.userProfile.username }}</h5>
         </div>

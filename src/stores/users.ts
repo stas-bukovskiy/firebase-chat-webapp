@@ -14,10 +14,13 @@ export const useUserStore = defineStore('users', {
             return (username: string) => {
                 return state.users.get(username);
             }
+        },
+        getUsers: state => {
+            return Array.from(state.users.values());
         }
     },
     actions: {
-        fetchByUsername(username: string): UserProfileEntity {
+        fetchByUsername(username: string) {
             if (!this.users.has(username)) {
                 const userRef = doc(db, "users", username).withConverter(UserProfileEntity.converter);
                 const userSnap = useDocument(userRef);

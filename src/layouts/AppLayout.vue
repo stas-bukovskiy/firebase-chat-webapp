@@ -36,7 +36,7 @@ div.content {
   background-color: #272727;
   margin: 1.4rem 1.4rem 1.4rem 0;
   border-radius: 16px;
-  height: calc(100vh - 50px);
+  height: calc(100vh - 2.9rem);
 }
 
 @media screen and (max-width: 700px) {

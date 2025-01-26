@@ -11,7 +11,7 @@ import {useNotification} from "naive-ui";
 import {nowToUTCTimestamp} from "@/utils/datetime.ts";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 12;
 
 const props = defineProps({
   chatId: String,
@@ -184,7 +184,7 @@ onUnmounted(() => {
 });
 
 const onScroll = async () => {
-  if (!chatContainer.value) return
+  if (!chatContainer.value || isInitialLoading) return
 
   updateReadStatus();
 
@@ -372,7 +372,7 @@ function updateReadStatus(): void {
       </div>
     </div>
 
-    <div v-if="isLoadingNewMessages && !isInitialLoading" class="loading-spinner">
+    <div v-if="isLoadingNewMessages" class="loading-spinner">
       <n-spin/>
     </div>
   </div>
