@@ -11,6 +11,8 @@ export function useChatNotification() {
     const chatStore = useChatStore()
     const route = useRoute()
 
+    const chatNotificationMap = new Map<string, Function[]>();
+
     /**
      * Shows a notification for a chat message.
      *
@@ -40,12 +42,14 @@ export function useChatNotification() {
             return
         }
 
-        if (route.path.includes(`/chat/${chatAgg.userChat.id}`)) {
-            console.log('Chat is already open:', chatAgg.userChat.id)
+        const userChatId = chatAgg.userChat.id;
+
+        if (route.path.includes(`/chat/${userChatId}`)) {
+            console.log('Chat is already open:', userChatId)
             return
         }
 
-        notification.create({
+        const { destroy } = notification.create({
             duration: 5000,
             content: () => {
                 return h(
@@ -59,7 +63,12 @@ export function useChatNotification() {
                         },
                         // Handle click to navigate to the chat page
                         onClick: async () => {
-                            await router.push(`/chat/${chatAgg.userChat.id}`)
+                            await router.push(`/chat/${userChatId}`)
+                            // Destroy all notifications for this chat
+                            if (chatNotificationMap[userChatId]) {
+                                chatNotificationMap[userChatId].forEach(destroy => destroy())
+                                chatNotificationMap[userChatId] = []
+                            }
                         }
                     },
                     [
@@ -89,6 +98,12 @@ export function useChatNotification() {
                 )
             }
         })
+
+        // Save the notification key for the given chatId
+        if (!chatNotificationMap[userChatId]) {
+            chatNotificationMap[userChatId] = []
+        }
+        chatNotificationMap[userChatId].push(destroy)
     }
 
     return {

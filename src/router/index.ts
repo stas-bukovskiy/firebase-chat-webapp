@@ -58,24 +58,28 @@ router.beforeEach(async (to, from, next) => {
     const currentUserStore = useCurrentUserStore();
 
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-    const requireCompleteProfile = to.matched.some(record => record.meta.requireCompleteProfile);
-    if (requiresAuth) {
-        const user = auth.currentUser;
-        if (user) {
-            if (requireCompleteProfile) {
-                const userProfile = await currentUserStore.fetchUserByEmail(user.email);
-                if (!userProfile) {
-                    next({name: 'complete-profile'})
-                }
-            }
-            next()
-        } else {
-            next({name: 'login'})
-        }
-    } else {
+    if (!requiresAuth) {
         next()
+        return
     }
-    // next()
+
+    const user = auth.currentUser;
+    if (!user) {
+        next({name: 'login'})
+        return
+    }
+
+    const requireCompleteProfile = to.matched.some(record => record.meta.requireCompleteProfile);
+    if (requireCompleteProfile) {
+        const userProfile = await currentUserStore.fetchUserByEmail(user.email);
+        console.log("Fetched user profile", userProfile);
+        if (!userProfile) {
+            next({name: 'complete-profile'})
+            return
+        }
+    }
+
+    next()
 })
 
 export default router

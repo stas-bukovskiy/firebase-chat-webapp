@@ -14,6 +14,7 @@ import {nowToUTCTimestamp} from "@/utils/datetime.ts";
 import UploadAvatar from "@/components/UploadAvatar.vue";
 import {generateUserKeywords} from "@/utils/keywords.ts";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
+import {generateDisplayName} from "@/utils/avatars.ts";
 
 const props = defineProps({
   initialState: {
@@ -146,12 +147,8 @@ const notification = useNotification();
 const loading = ref(false)
 const router = useRouter();
 
-const getProfileDisplayName = () => {
-  return profileParams.firstName + (profileParams.lastName ? ' ' + profileParams.lastName : '')
-}
-
 const displayName = computed(() => {
-  return getProfileDisplayName();
+  return generateDisplayName(profileParams);
 })
 
 const handleCreateUserClick = (e: MouseEvent) => {
@@ -160,7 +157,6 @@ const handleCreateUserClick = (e: MouseEvent) => {
     if (!errors) {
       loading.value = true
       createUserWithEmailAndPassword(auth, credentialsParams.email, credentialsParams.password)
-          .then(updateProfile(auth.currentUser, {displayName: getProfileDisplayName()}))
           .then(() => {
             current.value = 2
           })
@@ -188,10 +184,14 @@ const handleCreateProfileDetailsClick = (e: MouseEvent) => {
       loading.value = true
       createUserProfile()
           .then((user) => {
-            // todo: check this case
+            console.log("set user", user)
             currentUserStore.setUser(user)
             router.push('/')
           })
+          .then(updateProfile(auth.currentUser, {
+            displayName: profileParams.username,
+            photoURL: profileParams.photoUrl,
+          }))
           .catch((error) => {
             notifyError(notification, error)
           })
@@ -208,12 +208,8 @@ const handleCreateProfileDetailsClick = (e: MouseEvent) => {
     <!-- Stepper -->
     <div class="mt-2 mb-4">
       <n-steps :current="current as number">
-        <n-step
-            title="Credentials"
-        />
-        <n-step
-            title="Profile Details"
-        />
+        <n-step title="Credentials"/>
+        <n-step title="Profile Details"/>
       </n-steps>
     </div>
 

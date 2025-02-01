@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import {computed, onMounted, type PropType} from "vue";
+import {computed, type PropType} from "vue";
 import {generateAvatarColors, generateDisplayName, generateInitials} from "@/utils/avatars.ts";
 import type {UserProfileEntity} from "@/services/entities.ts";
-import type {AvatarBadgeBorderColors} from "@/utils/avatar_badge.ts";
+import {type AvatarBadgeBorderColors, DEFAULT_BADGE_COLORS} from "@/utils/avatar_badge.ts";
 
 const sizeConfigs = new Map([
   ["small", {
@@ -70,7 +70,10 @@ const sizeConfigs = new Map([
 
 const props = defineProps({
   userProfile: Object as PropType<UserProfileEntity>,
-  badgeBorderColors: Object as PropType<AvatarBadgeBorderColors>,
+  badgeBorderColors: {
+    type: Object as PropType<AvatarBadgeBorderColors>,
+    default: DEFAULT_BADGE_COLORS,
+  },
   isCurrent: {
     type: Boolean,
     default: false
@@ -79,10 +82,6 @@ const props = defineProps({
     type: String,
     default: "default"
   }
-});
-
-onMounted(() => {
-  console.log('props', props.userProfile);
 });
 
 const initials = computed(() => {
@@ -98,8 +97,8 @@ const isAvatarUrl = computed(() => props.userProfile?.photoUrl);
 
 const avatarStyles = computed(() => {
   let colors = {bgColor: "var(--cs-avatar-default-bg-color)", textColor: "var(--cs-avatar-default-text-color)"};
-  if (props.userProfile && props.userProfile.username) {
-    colors = generateAvatarColors(props.userProfile.username);
+  if (props.userProfile && props.userProfile.uid) {
+    colors = generateAvatarColors(props.userProfile.uid);
   }
 
   return {
