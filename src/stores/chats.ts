@@ -1,24 +1,17 @@
 import {defineStore} from "pinia";
-import {useDocument} from "vuefire";
-import {auth, db} from "@/firebase";
-import {collection, doc, setDoc, getDoc, getDocs, addDoc, onSnapshot} from "firebase/firestore";
-import {
-    ChatEntity,
-    type ChatAggregate,
-    GroupChatAggregate,
-    PrivateChatAggregate,
-    UserProfileEntity
-} from "@/services/entities.ts";
+import {db} from "@/firebase";
+import {collection, doc, getDoc, addDoc, onSnapshot} from "firebase/firestore";
+import {ChatEntity, type ChatAggregate, GroupChatAggregate, PrivateChatAggregate} from "@/services/entities.ts";
 import {UserChatEntity} from "@/services/entities.ts";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
 import {useUserStore} from "@/stores/users.ts";
 import {nowToUTCTimestamp} from "@/utils/datetime.ts";
 import type {Unsubscribe} from "@firebase/firestore";
+import {reactive} from "vue";
 
 export const useChatStore = defineStore("chats", {
     state: () => ({
-        userChatsDoc: null,
-        userChats: [] as ChatAggregate[],
+        userChats: reactive([] as ChatAggregate[]),
     }),
     actions: {
         // --- Fetching user chats ---
@@ -39,7 +32,7 @@ export const useChatStore = defineStore("chats", {
                     if (change.type === "added") {
                         await this.handleAddedUserChat(change.doc.data());
                     } else if (change.type === "modified") {
-                        console.log("Modified city: ", change.doc.data());
+                        this.handleModifiedUserChat(change.doc.data());
                     } else if (change.type === "removed") {
                         console.log("Removed city: ", change.doc.data());
                     }
@@ -87,6 +80,18 @@ export const useChatStore = defineStore("chats", {
         },
 
 
+        // --- Updating a chat ---
+        handleModifiedUserChat(userChat: UserChatEntity) {
+            const chat = this.userChats.find(chat => chat.userChat.id === userChat.id);
+            if (!chat) {
+                console.error("Chat not found", userChat.id);
+                return;
+            }
+
+            chat.userChat = userChat;
+        },
+
+
         // --- Creating a new chat ---
         async createPrivateChat(username: string): Promise<string> {
             // Create a new chat
@@ -111,11 +116,11 @@ export const useChatStore = defineStore("chats", {
 
             // TODO: move to cloud function
             // Add the chat to the other user's chat list
-            await addDoc(collection(db, "userChats", username, "chats"), {
-                chat: chatRef,
-                isStarred: false,
-                unreadCount: 0,
-            });
+            // await addDoc(collection(db, "userChats", username, "chats"), {
+            //     chat: chatRef,
+            //     isStarred: false,
+            //     unreadCount: 0,
+            // });
             return userChatRef.id;
         }
     },
@@ -123,9 +128,13 @@ export const useChatStore = defineStore("chats", {
         getChats: (state) => state.userChats,
         getChatByUserChatId: (state) => {
             return (userChatId: string) => {
-                console.log("getChatByUserChatId", userChatId);
                 return state.userChats.find(chat => chat.userChat.id === userChatId);
             }
         },
+        getChatByChatId: (state) => {
+            return (chatId: string) => {
+                return state.userChats.find(chat => chat.chat.id === chatId);
+            }
+        }
     }
 })

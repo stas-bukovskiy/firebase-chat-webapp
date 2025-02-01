@@ -13,6 +13,10 @@ const props = defineProps({
   isCurrent: {
     type: Boolean,
     default: false
+  },
+  size: {
+    type: String,
+    default: "default"
   }
 });
 
@@ -25,6 +29,7 @@ const isGroup = computed(() => {
 <template>
   <GroupAvatar v-if="isGroup" :chatAgg="props.chatAgg"/>
   <UserAvatar v-else :userProfile="props.chatAgg.otherUserProfile" :isCurrent="props.isCurrent"
+              :size="props.size"
               :badgeBorderColors="props.badgeBorderColors"/>
 </template>
 

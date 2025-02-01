@@ -42,6 +42,7 @@ export class ChatEntity extends Entity {
 
 // UserProfileEntity is a model that represents a user profile
 export class UserProfileEntity extends Entity {
+    uid: string;
     username: string;
     email: string;
     firstName: string;
@@ -51,6 +52,7 @@ export class UserProfileEntity extends Entity {
 
     protected static transformFromFirestore(data: FirebaseFirestore.DocumentData): UserProfileEntity {
         return {
+            uid: String(data.uid),
             username: String(data.username),
             email: String(data.email),
             firstName: String(data.firstName),
@@ -74,7 +76,6 @@ export class PrivateChatAggregate implements ChatAggregate {
     userChat: UserChatEntity;
 
     constructor(chat: ChatEntity, otherUserProfile: UserProfileEntity, userChat: UserChatEntity) {
-        console.log("PrivateChatAggregate constructor", chat, otherUserProfile, userChat);
         this.chat = chat;
         this.otherUserProfile = otherUserProfile;
         this.userChat = userChat;
@@ -93,7 +94,6 @@ export class GroupChatAggregate implements ChatAggregate {
 
 export enum MessageStatus {
     SENT = "sent",
-    RECEIVED = "received",
     READ = "read",
 }
 

@@ -1,5 +1,5 @@
 import {defineStore} from 'pinia'
-import {doc, getDoc, collection, query, where, getDocs} from "firebase/firestore";
+import {collection, query, where, getDocs} from "firebase/firestore";
 import {db} from "@/firebase";
 import {UserProfileEntity} from "@/services/entities.ts";
 
@@ -24,6 +24,7 @@ export const useCurrentUserStore = defineStore('currentUser', {
     actions: {
         async fetchUserByEmail(email: string) {
             if (this.user?.email === email) {
+                console.log("User already fetched");
                 return this.user
             }
 
