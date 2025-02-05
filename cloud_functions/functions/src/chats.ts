@@ -69,7 +69,7 @@ const createSystemMessage = async (chatId: string, messageType: SYSTEM_MESSAGE, 
 };
 
 const createUserChat = async (chatId: string, userRef: DocumentReference) => {
-    await db.collection(`userChats/${userRef.id}/chats`).add({
+    await db.doc(`userChats/${userRef.id}/chats/${chatId}`).set({
         chat: db.doc(`chats/${chatId}`),
         unreadCount: 1,
         isStarred: false,

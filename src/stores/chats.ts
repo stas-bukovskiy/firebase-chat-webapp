@@ -10,6 +10,9 @@ import type {Unsubscribe} from "@firebase/firestore";
 import {reactive} from "vue";
 
 export const useChatStore = defineStore("chats", {
+    setup: () => {
+
+    },
     state: () => ({
         userChats: reactive([] as ChatAggregate[]),
         chatsUnsubscribe: new Map<string, Unsubscribe>(),
@@ -36,10 +39,26 @@ export const useChatStore = defineStore("chats", {
                     } else if (change.type === "modified") {
                         this.handleModifiedUserChat(change.doc.data());
                     } else if (change.type === "removed") {
-                        console.log("Removed city: ", change.doc.data());
+                        await this.handleRemovedUserChat(change.doc.data());
                     }
                 }
             });
+        },
+
+        async handleRemovedUserChat(userChat: UserChatEntity) {
+            console.log("Removed user chat", userChat);
+            const chatIndex = this.userChats.findIndex(chat => chat.userChat.id === userChat.id);
+            if (chatIndex === -1) {
+                console.error("Chat not found", userChat.id);
+                return;
+            }
+
+            const route = this.router.currentRoute;
+            if (route.value.name === 'chat' && route.value.params.id === userChat.id) {
+                await this.router.push({name: 'app'});
+            }
+
+            this.userChats.splice(chatIndex, 1);
         },
 
         // --- Adding a new chat ---
@@ -48,7 +67,6 @@ export const useChatStore = defineStore("chats", {
                 .withConverter(ChatEntity.converter);
             const unsubscribe = onSnapshot(chatRef, async (chatSnap) => {
                 for (const change of chatSnap.docChanges()) {
-                    console.log("Change type chat", change.type);
                     if (change.type === "added") {
                         const chat = change.doc.data() as ChatEntity;
                         if (chat.isGroup) {

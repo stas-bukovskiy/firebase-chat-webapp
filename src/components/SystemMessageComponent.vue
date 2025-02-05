@@ -34,8 +34,12 @@ const messageText = computed(() => {
         return `<b>${generateDisplayName(user?.data)}</b> has been added to the group`;
       }
     case SYSTEM_MESSAGE.GROUP_MEMBER_REMOVED:
-      const user = userStore.fetchByUsername(props.data.removedMemberId);
-      return `<b>${generateDisplayName(user?.data)}</b> has been removed from the group`;
+      if (props.data.removedMemberId === currentUserStore.username) {
+        return `<b>You</b> have been removed from the group`;
+      } else {
+        const user = userStore.fetchByUsername(props.data.removedMemberId);
+        return `<b>${generateDisplayName(user?.data)}</b> has been removed from the group`;
+      }
     case SYSTEM_MESSAGE.GROUP_RENAMED:
       return `The group has been renamed to <b>${props.data.newGroupName}</b>`;
     case SYSTEM_MESSAGE.GROUP_IMAGE_UPDATED:
@@ -60,12 +64,4 @@ const messageText = computed(() => {
   border-radius: 10px;
   margin-bottom: 0.8rem;
 }
-
-.message-image {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  margin-left: 0.5rem;
-}
-
 </style>
