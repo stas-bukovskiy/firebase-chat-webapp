@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import {computed, onMounted, ref} from "vue";
 import {generateAvatarColors, generateInitials} from "@/utils/avatars";
 import {Edit24Filled, Delete24Filled, Dismiss24Filled} from "@vicons/fluent";
@@ -9,6 +8,21 @@ import {notifyError} from "@/utils/errors.ts";
 import {useNotification} from "naive-ui";
 import {storage} from "@/firebase";
 import {getFileExtension} from "@/utils/files.ts";
+
+const sizeConfigs = new Map([
+  ["big", {
+    width: "82px",
+    height: "82px",
+    borderRadius: '10px',
+    fontSize: '1.8em'
+  }],
+  ["large", {
+    width: '120px',
+    height: '120px',
+    borderRadius: '16px',
+    fontSize: '2.2em'
+  }],
+]);
 
 
 const props = defineProps({
@@ -21,6 +35,10 @@ const props = defineProps({
     default: null
   },
   avatarKey: String,
+  size: {
+    type: String,
+    default: "big"
+  }
 })
 
 const emit = defineEmits(["update:isLoading", "newAvatarUrl"])
@@ -50,9 +68,6 @@ onMounted(() => {
 
 const initials = computed(() => {
   return props.displayName ? generateInitials(props.displayName) : "";
-})
-const colors = computed(() => {
-  return props.avatarKey ? generateAvatarColors(props.avatarKey) : {bgColor: "#63e2b7", textColor: "#000"};
 })
 
 const generateAvatarName = (fileName: string): string => {
@@ -136,14 +151,20 @@ const handleAvatarRemoving = () => {
     notifyError(notification, error);
   });
 }
+
+const containerStyles = computed(() => {
+  const colors = props.avatarKey ? generateAvatarColors(props.avatarKey) : {bgColor: "#63e2b7", textColor: "#000"};
+  return {
+    ...sizeConfigs.get(props.size),
+    backgroundColor: colors.bgColor,
+    color: colors.textColor,
+  };
+});
 </script>
 
 <template>
-  <div
-      class="avatar-container"
-      :style="{ backgroundColor: colors.bgColor, color: colors.textColor }"
-      @mouseover="hover = !loading" @mouseleave="hover = false"
-  >
+  <div class="avatar-container" :style="containerStyles"
+       @mouseover="hover = !loading" @mouseleave="hover = false">
     <img v-if="isAvatarUrl" :src="avatarUrl" :alt="displayName" class="avatar-image"/>
     <span v-else class="avatar-initials">{{ initials }}</span>
     <div v-if="hover" class="avatar-overlay">
@@ -191,9 +212,6 @@ const handleAvatarRemoving = () => {
 <style scoped>
 .avatar-container {
   position: relative;
-  width: 120px;
-  height: 120px;
-  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -208,7 +226,6 @@ const handleAvatarRemoving = () => {
 }
 
 .avatar-initials {
-  font-size: 2.2em;
   font-weight: bold;
 }
 

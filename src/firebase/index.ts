@@ -23,5 +23,5 @@ connectFirestoreEmulator(db, '127.0.0.1', 8080);
 export const auth = getAuth(app);
 connectAuthEmulator(auth, "http://127.0.0.1:9099");
 export const storage = getStorage(app);
-connectStorageEmulator(storage, "127.0.0.1", 9199);
+// connectStorageEmulator(storage, "127.0.0.1", 9199);
 export const messaging = getMessaging(app);

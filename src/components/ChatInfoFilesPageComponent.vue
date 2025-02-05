@@ -75,7 +75,7 @@ const isMedia = props.pageType === Pages.MEDIA;
 
 <template>
   <div class="chat-info-container">
-    <div class="d-flex align-items-center px-4 py-3 bottom-bordered">
+    <div class="d-flex align-items-center px-4 py-3 bordered-bottom">
       <n-button text style="font-size: 24px" class="d-flex align-items-baseline me-3"
                 @click="emit('back')">
         <n-icon class="d-flex align-items-baseline">

@@ -7,13 +7,13 @@ import {useChatStore} from "@/stores/chats.ts";
 import {collection, query, where, orderBy, limit, getDocs} from "firebase/firestore";
 import {db} from "@/firebase";
 import {generateKeywords, generateUserKeywords} from "@/utils/keywords.ts";
-import {CARD_BADGE_COLORS} from "@/utils/avatar_badge.ts";
+import {CARD_BADGE_COLORS} from "@/utils/avatar_config.ts";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
 import {useRouter} from "vue-router";
 import {useNotification} from "naive-ui";
 import {notifyError} from "@/utils/errors.ts";
 
-const resultLimit = 10;
+const RESULT_LIMIT = 10;
 
 const emit = defineEmits(["onClose"]);
 
@@ -37,7 +37,7 @@ const searchUsers = async (value: string) => {
   const usersQuery = query(collection(db, "users"),
       where("keywords", "array-contains", value),
       orderBy("firstName", "desc"), orderBy("lastName", "desc"),
-      limit(resultLimit)).withConverter(UserProfileEntity.converter)
+      limit(RESULT_LIMIT)).withConverter(UserProfileEntity.converter)
   const usersSnapshot = await getDocs(usersQuery)
 
   const result = usersSnapshot.docs
@@ -51,9 +51,7 @@ const searchUsers = async (value: string) => {
       .map(doc => {
         return new PrivateChatAggregate({isGroup: false}, doc.data(), null);
       })
-
-  console.log("Result", result)
-
+  
   usersResult.splice(0, usersResult.length, ...result)
 }
 
@@ -67,7 +65,7 @@ const myChatsResult = computed(() => {
       return generateKeywords(chatAgg.chat.groupName).includes(search.value);
     }
     return generateUserKeywords(chatAgg.otherUserProfile).includes(search.value);
-  }).slice(0, resultLimit);
+  }).slice(0, RESULT_LIMIT);
 })
 
 const router = useRouter();

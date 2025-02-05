@@ -1,9 +1,9 @@
 <script setup lang="ts">
 
-import {CARD_BADGE_COLORS} from "@/utils/avatar_badge.ts";
+import {CARD_BADGE_COLORS} from "@/utils/avatar_config.ts";
 import UserAvatar from "@/components/UserAvatar.vue";
 import type {ChatAggregate} from "@/services/entities.ts";
-import {computed, type PropType} from "vue";
+import {computed, type PropType, ref} from "vue";
 import {generateDisplayName} from "@/utils/avatars.ts";
 import {
   Star24Filled,
@@ -11,7 +11,6 @@ import {
   TextBulletListSquareEdit20Regular,
   Delete24Regular,
   People20Regular,
-  PeopleAdd20Regular,
   Image20Regular,
   Document20Regular,
   Link20Regular,
@@ -19,6 +18,10 @@ import {
 import ChatInfoListItemComponent from "@/components/ChatInfoListItemComponent.vue";
 import {useUserStore} from "@/stores/users.ts";
 import {Pages} from "@/services/enums.ts";
+import Avatar from "@/components/Avatar.vue";
+import {useCurrentUserStore} from "@/stores/current-user.ts";
+import EditGroupModal from "@/components/EditGroupModal.vue";
+
 
 const props = defineProps({
   chatAgg: Object as PropType<ChatAggregate>
@@ -37,15 +40,17 @@ const displayName = computed(() => {
   return generateDisplayName(props.chatAgg?.otherUserProfile);
 });
 
+const currentStore = useCurrentUserStore();
+
 const isAdmin = computed(() => {
-  // TODO
-  return false;
+  return currentStore.username === props.chatAgg?.chat?.createdBy?.id;
 })
 
 
 const usersStore = useUserStore();
 const members = computed(() => {
-  return usersStore.getUsers;
+  const membersIds = [props.chatAgg?.chat.createdBy.id, ...props.chatAgg?.chat?.members.map(member => member.id)];
+  return membersIds.map(memberId => usersStore.fetchByUsername(memberId));
 })
 
 const handleStarClick = () => {
@@ -65,13 +70,10 @@ const handleLinksClick = () => {
   emit("navigateTo", Pages.LINKS);
 }
 
-const handleAddMembersClick = () => {
-  console.log("Add members clicked");
-}
-
+const showEditGroupModal = ref(false);
 const handleEditGroupClick = () => {
-  console.log("Edit group info");
-}
+  showEditGroupModal.value = true;
+};
 
 const handleDeleteGroupClick = () => {
   console.log("Delete group");
@@ -90,9 +92,8 @@ const handleDeleteChatClick = () => {
 <template>
   <div class="chat-info-container">
 
-    <div class="d-flex align-items-center px-4 py-3 bottom-bordered">
-      <UserAvatar :userProfile="props.chatAgg?.otherUserProfile" :badgeBorderColors="CARD_BADGE_COLORS" size="big"
-                  class="me-3"/>
+    <div class="d-flex align-items-center px-4 py-3 bordered-bottom">
+      <Avatar :chatAgg="props.chatAgg" :badgeBorderColors="CARD_BADGE_COLORS" size="big" class="me-3"/>
 
       <div class="row m-0 p-0" style="width: 100%">
         <div class="col-9 m-0 p-0 d-flex flex-column justify-content-center chat-info-text">
@@ -112,7 +113,7 @@ const handleDeleteChatClick = () => {
     </div>
   </div>
 
-  <div class="bottom-bordered py-2">
+  <div class="bordered-bottom py-2">
     <ChatInfoListItemComponent @click="handleMediaClick">
       <template #icon>
         <n-icon size="28px" class="d-flex align-items-baseline me-3">
@@ -139,7 +140,7 @@ const handleDeleteChatClick = () => {
     </ChatInfoListItemComponent>
   </div>
 
-  <div class="bottom-bordered py-2" v-if="isGroup">
+  <div class="bordered-bottom py-2" v-if="isGroup">
     <ChatInfoListItemComponent :is-clickable="false">
       <template #icon>
         <n-icon size="28px" class="d-flex align-items-baseline me-3">
@@ -147,25 +148,17 @@ const handleDeleteChatClick = () => {
         </n-icon>
       </template>
       Members
-
-      <template #right-section v-if="isAdmin">
-        <n-button text @click="handleAddMembersClick">
-          <n-icon size="28px" class="d-flex align-items-baseline">
-            <PeopleAdd20Regular/>
-          </n-icon>
-        </n-button>
-      </template>
     </ChatInfoListItemComponent>
 
     <ChatInfoListItemComponent class="" v-for="member in members">
       <template #icon>
-        <UserAvatar :userProfile="member.data" :badgeBorderColors="CARD_BADGE_COLORS" size="small" class="me-2"/>
+        <UserAvatar :userProfile="member.data" :badgeBorderColors="CARD_BADGE_COLORS" size="small" class="me-3"/>
       </template>
       {{ generateDisplayName(member.data) }}
     </ChatInfoListItemComponent>
   </div>
 
-  <div class="bottom-bordered py-2" v-if="isAdmin">
+  <div class="bordered-bottom py-2" v-if="isAdmin">
     <ChatInfoListItemComponent @click="handleEditGroupClick">
       <template #icon>
         <n-icon size="28px" class="d-flex align-items-baseline me-3">
@@ -184,7 +177,7 @@ const handleDeleteChatClick = () => {
       Delete group
     </ChatInfoListItemComponent>
   </div>
-  <div class="bottom-bordered py-2" v-else-if="isGroup">
+  <div class="bordered-bottom py-2" v-else-if="isGroup">
     <ChatInfoListItemComponent @click="handleLeaveGroupClick">
       <template #icon>
         <n-icon size="28px" class="d-flex align-items-baseline me-3">
@@ -194,7 +187,7 @@ const handleDeleteChatClick = () => {
       Leave group
     </ChatInfoListItemComponent>
   </div>
-  <div class="bottom-bordered py-2" v-else>
+  <div class="bordered-bottom py-2" v-else>
     <ChatInfoListItemComponent @click="handleDeleteChatClick">
       <template #icon>
         <n-icon size="24px" class="d-flex align-items-baseline justify-content-center me-3">
@@ -204,6 +197,10 @@ const handleDeleteChatClick = () => {
       Delete chat
     </ChatInfoListItemComponent>
   </div>
+
+  <n-modal v-model:show="showEditGroupModal" :mask-closable="false">
+    <EditGroupModal @onClose="showEditGroupModal = false" :groupChat="props.chatAgg.chat"/>
+  </n-modal>
 </template>
 
 <style scoped>

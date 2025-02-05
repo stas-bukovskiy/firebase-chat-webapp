@@ -1,6 +1,6 @@
 import {defineStore} from "pinia";
 import {db} from "@/firebase";
-import {collection, doc, getDoc, addDoc, onSnapshot} from "firebase/firestore";
+import {collection, doc, addDoc, onSnapshot, query, where, documentId} from "firebase/firestore";
 import {ChatEntity, type ChatAggregate, GroupChatAggregate, PrivateChatAggregate} from "@/services/entities.ts";
 import {UserChatEntity} from "@/services/entities.ts";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
@@ -12,6 +12,7 @@ import {reactive} from "vue";
 export const useChatStore = defineStore("chats", {
     state: () => ({
         userChats: reactive([] as ChatAggregate[]),
+        chatsUnsubscribe: new Map<string, Unsubscribe>(),
     }),
     actions: {
         // --- Fetching user chats ---
@@ -29,6 +30,7 @@ export const useChatStore = defineStore("chats", {
                 .withConverter(UserChatEntity.converter);
             return onSnapshot(userChatsRef, async (snapshot) => {
                 for (const change of snapshot.docChanges()) {
+                    console.log("Change type userchat", change.type);
                     if (change.type === "added") {
                         await this.handleAddedUserChat(change.doc.data());
                     } else if (change.type === "modified") {
@@ -42,18 +44,26 @@ export const useChatStore = defineStore("chats", {
 
         // --- Adding a new chat ---
         async handleAddedUserChat(userChat: UserChatEntity) {
-            const chatRef = doc(db, 'chats', userChat.chat.id)
+            const chatRef = query(collection(db, 'chats'), where(documentId(), '==', userChat.chat.id))
                 .withConverter(ChatEntity.converter);
-            const chatSnap = await getDoc(chatRef);
-
-            if (chatSnap.exists()) {
-                const chat = chatSnap.data();
-                if (chat.isGroup) {
-                    await this.handleAddedGroupChat(userChat, chat);
-                } else {
-                    await this.handleAddedPrivateChat(userChat, chat);
+            const unsubscribe = onSnapshot(chatRef, async (chatSnap) => {
+                for (const change of chatSnap.docChanges()) {
+                    console.log("Change type chat", change.type);
+                    if (change.type === "added") {
+                        const chat = change.doc.data() as ChatEntity;
+                        if (chat.isGroup) {
+                            await this.handleAddedGroupChat(userChat, chat);
+                        } else {
+                            await this.handleAddedPrivateChat(userChat, chat);
+                        }
+                    } else if (change.type === "modified") {
+                        this.handleModifiedChat(change.doc.data());
+                    } else if (change.type === "removed") {
+                        this.handleRemovedChat(change.doc.data());
+                    }
                 }
-            }
+            });
+            this.chatsUnsubscribe.set(userChat.id, unsubscribe);
         },
         async handleAddedGroupChat(userChat: UserChatEntity, chat: ChatEntity) {
             const groupChat = new GroupChatAggregate(chat, userChat);
@@ -78,10 +88,31 @@ export const useChatStore = defineStore("chats", {
             // TODO: add sorting
             this.userChats.push(privateChat);
         },
+        handleModifiedChat(chat: ChatEntity) {
+            const chatAggregate = this.userChats.find(chatAgg => chatAgg.chat.id === chat.id);
+            if (!chatAggregate) {
+                console.error("Chat not found", chat.id);
+                return;
+            }
+
+            chatAggregate.chat = chat;
+        },
+        handleRemovedChat(chat: ChatEntity) {
+            console.log("Removed chat", chat);
+            const chatIndex = this.userChats.findIndex(chat => chat.chat.id === chat.id);
+            if (chatIndex === -1) {
+                console.error("Chat not found", chat.id);
+                return;
+            }
+
+            this.userChats.splice(chatIndex, 1);
+            this.chatsUnsubscribe.get(chat.id)?.();
+        },
 
 
         // --- Updating a chat ---
         handleModifiedUserChat(userChat: UserChatEntity) {
+            console.log("Modified user chat", userChat);
             const chat = this.userChats.find(chat => chat.userChat.id === userChat.id);
             if (!chat) {
                 console.error("Chat not found", userChat.id);

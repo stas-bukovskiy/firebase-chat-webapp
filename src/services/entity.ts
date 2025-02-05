@@ -43,7 +43,6 @@ export default class Entity<T extends EntityInterface> implements EntityInterfac
     private static toFirestore<T extends EntityInterface>(model: T): Record<string, any> {
         const transformed = this.transformToFirestore(model)
         const filtered = _.omit(transformed, ['id'])
-
         return {...filtered}
     }
 

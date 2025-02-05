@@ -3,7 +3,7 @@
 import {computed, type PropType} from "vue";
 import type {UserProfileEntity} from "@/services/entities.ts";
 import UserAvatar from "@/components/UserAvatar.vue";
-import {CARD_BADGE_COLORS} from "@/utils/avatar_badge.ts";
+import {CARD_BADGE_COLORS} from "@/utils/avatar_config.ts";
 import {generateDisplayName} from "@/utils/avatars.ts";
 import {Send24Regular} from "@vicons/fluent";
 

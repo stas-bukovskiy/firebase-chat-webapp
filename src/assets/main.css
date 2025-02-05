@@ -17,6 +17,20 @@ body {
     text-overflow: ellipsis;
 }
 
-.bottom-bordered {
-    border-bottom: 1px solid #333;
+
+/* --- Borders --- */
+.bordered-bottom {
+    border-bottom: 2px solid var(--cs-sub-card-bg-color);
+}
+
+.bordered-top {
+    border-top: 2px solid var(--cs-sub-card-bg-color);
+}
+
+.bordered-left {
+    border-left: 2px solid var(--cs-sub-card-bg-color);
+}
+
+.bordered-right {
+    border-right: 2px solid var(--cs-sub-card-bg-color);
 }

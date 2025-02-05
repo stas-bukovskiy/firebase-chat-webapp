@@ -5,7 +5,7 @@ import {Checkmark20Filled} from "@vicons/fluent";
 import type {MessageEntity} from "@/services/entities.ts";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
 import {useUserStore} from "@/stores/users.ts";
-import {SUB_CARD_BADGE_COLORS} from "@/utils/avatar_badge.ts";
+import {SUB_CARD_BADGE_COLORS} from "@/utils/avatar_config.ts";
 import AttachmentComponent from "@/components/AttachmentComponent.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
 

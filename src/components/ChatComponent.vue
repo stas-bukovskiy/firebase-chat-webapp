@@ -4,14 +4,27 @@ import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue';
 import MessageInput from "@/components/MessageInput.vue";
 import MessageComponent from "@/components/MessageComponent.vue";
 import {MessageEntity, MessageStatus} from "@/services/entities.ts";
-import {collection, doc, getDocs, limit, onSnapshot, orderBy, query, startAt, where, or, updateDoc} from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  limit,
+  onSnapshot,
+  orderBy,
+  query,
+  startAt,
+  where,
+  or,
+  updateDoc
+} from "firebase/firestore";
 import {db} from "@/firebase";
 import {notifyError} from "@/utils/errors.ts";
 import {useNotification} from "naive-ui";
 import {nowToUTCTimestamp} from "@/utils/datetime.ts";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
+import SystemMessageComponent from "@/components/SystemMessageComponent.vue";
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 24;
 
 const props = defineProps({
   chatId: String,
@@ -40,6 +53,7 @@ const messagesSource = computed(() => {
 
 onMounted(async () => {
   await handleInitialFetch();
+  console.log("messages", messages);
 });
 
 watch(() => props.chatId, async () => {
@@ -57,21 +71,6 @@ watch(hasNoMoreNewMessages, (hasNoMoreNewMessages) => {
 const handleInitialFetch = async () => {
   reset();
 
-  // fetchInitialOldMessages()
-  //     .then(fetchInitialNewMessages())
-  //     .then(() => {
-  //       // Finish initial loading
-  //       isInitialLoading.value = false;
-  //
-  //       // Scroll to the bottom of the chat
-  //       nextTick(() => {
-  //         chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
-  //       })
-  //     })
-  //     // .then(new Promise(resolve => setTimeout(resolve, 5000)))
-  //     .catch((e) => {
-  //       notifyError(notification, e);
-  //     })
   await fetchInitialOldMessages();
   await fetchInitialNewMessages();
   isInitialLoading.value = false;
@@ -105,6 +104,7 @@ const fetchInitialOldMessages = async () => {
       or(
           where("status", "==", MessageStatus.READ),
           where("fromUser", "==", doc(db, "users", currentUserStore.currentUser.username)),
+          where("systemMessageType", "!=", null)
       ),
       orderBy('createdAt', 'desc'),
       limit(PAGE_SIZE));
@@ -115,9 +115,9 @@ const fetchInitialOldMessages = async () => {
   }
 
   prevMessages.sort((a, b) => a.createdAt - b.createdAt);
-  // prevMessages.forEach((message) => {
-  //   console.log("Old message", message.fromUser.id === currentUserStore.username, message.text);
-  // });
+  prevMessages.forEach((message) => {
+    console.log("Old message", message.fromUser?.id === currentUserStore.username, message.text, message.systemMessageType);
+  });
   messages.value = prevMessages;
 };
 
@@ -136,9 +136,9 @@ const fetchInitialNewMessages = async () => {
     hasNoMoreNewMessages.value = true;
   }
 
-  // newMessages.forEach((message) => {
-  //   console.log("New message", message.fromUser.id === currentUserStore.username, message.text);
-  // });
+  newMessages.forEach((message) => {
+    console.log("New message", message.fromUser?.id === currentUserStore.username, message?.text, message.systemMessageType);
+  });
 
   // newMessages.sort((a, b) => a.createdAt - b.createdAt);
   messages.value.push(...newMessages);
@@ -367,7 +367,9 @@ function updateReadStatus(): void {
         <n-divider v-if="isNewMessage(index)">
           <span slot="content">Unread messages</span>
         </n-divider>
-        <MessageComponent :message="message" :chatId="props.chatId" :attachmentsUrl="message.attachmentsUrl"
+        <SystemMessageComponent v-if="message.systemMessageType" :type="message.systemMessageType"
+                                :data="message.data"/>
+        <MessageComponent v-else :message="message" :chatId="props.chatId" :attachmentsUrl="message.attachmentsUrl"
                           :isStacked="computeStacked(message, index)"/>
       </div>
     </div>

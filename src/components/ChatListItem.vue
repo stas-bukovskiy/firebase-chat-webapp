@@ -1,9 +1,9 @@
 <script setup lang="ts">
 
-import {computed, type PropType, ref} from "vue";
+import {computed, onMounted, type PropType, ref} from "vue";
 import {generateDisplayName} from "@/utils/avatars.ts";
 import type {ChatAggregate} from "@/services/entities.ts";
-import type {AvatarBadgeBorderColors} from "@/utils/avatar_badge.ts";
+import type {AvatarBadgeBorderColors} from "@/utils/avatar_config.ts";
 import Avatar from "@/components/Avatar.vue";
 
 const props = defineProps({

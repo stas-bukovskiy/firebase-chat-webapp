@@ -2,71 +2,7 @@
 import {computed, type PropType} from "vue";
 import {generateAvatarColors, generateDisplayName, generateInitials} from "@/utils/avatars.ts";
 import type {UserProfileEntity} from "@/services/entities.ts";
-import {type AvatarBadgeBorderColors, DEFAULT_BADGE_COLORS} from "@/utils/avatar_badge.ts";
-
-const sizeConfigs = new Map([
-  ["small", {
-    avatar: {
-      minWidth: "32px",
-      width: "32px",
-      minHeight: "32px",
-      height: "32px",
-      borderRadius: "8px"
-    },
-    avatarInitials: {
-      fontSize: "1.1em"
-    },
-    badge: {
-      top: "-3px",
-      left: "24px",
-      width: "8px",
-      height: "8px",
-      borderRadius: "50%",
-      border: "3px solid var(--cs-badge-default-bg-color)",
-    }
-  }],
-  ["default", {
-    avatar: {
-      minWidth: "46px",
-      width: "46px",
-      minHeight: "46px",
-      height: "46px",
-      borderRadius: "8px"
-    },
-    avatarInitials: {
-      fontSize: "1.4em"
-    },
-    badge: {
-      top: "-4px",
-      left: "34px",
-      width: "12px",
-      height: "12px",
-      borderRadius: "50%",
-      border: "4px solid var(--cs-badge-default-bg-color)",
-    }
-  }],
-  ["big", {
-    avatar: {
-      minWidth: "64px",
-      width: "64px",
-      minHeight: "64px",
-      height: "64px",
-      borderRadius: "10px"
-    },
-    avatarInitials: {
-      fontSize: "2em"
-    },
-    badge: {
-      top: "-5px",
-      left: "50px",
-      width: "14px",
-      height: "14px",
-      borderRadius: "50%",
-      border: "5px solid var(--cs-badge-default-bg-color)",
-    }
-  }],
-]);
-
+import {type AvatarBadgeBorderColors, DEFAULT_BADGE_COLORS, SIZE_CONFIGS} from "@/utils/avatar_config.ts";
 
 const props = defineProps({
   userProfile: Object as PropType<UserProfileEntity>,
@@ -102,19 +38,19 @@ const avatarStyles = computed(() => {
   }
 
   return {
-    ...sizeConfigs.get(props.size).avatar,
+    ...SIZE_CONFIGS.get(props.size).avatar,
     backgroundColor: colors.bgColor,
     color: colors.textColor,
   };
 });
 
 const avatarInitialsStyles = computed(() => {
-  return {...sizeConfigs.get(props.size).avatarInitials};
+  return {...SIZE_CONFIGS.get(props.size).avatarInitials};
 });
 
 const badgeStyles = computed(() => {
   return {
-    ...sizeConfigs.get(props.size).badge,
+    ...SIZE_CONFIGS.get(props.size).badge,
     backgroundColor: props.userProfile?.isOnline ? "var(--cs-badge-online-bg-color)" : "var(--cs-badge-offline-bg-color)",
     borderColor: props.isCurrent ? props.badgeBorderColors.hoverColor : props.badgeBorderColors.color,
   };
@@ -124,8 +60,7 @@ const badgeStyles = computed(() => {
 
 
 <template>
-  <div class="avatar-container"
-       :style="avatarStyles">
+  <div class="avatar-container" :style="avatarStyles">
     <div class="status-badge" :style="badgeStyles"></div>
     <img v-if="isAvatarUrl" :src="props.userProfile.photoUrl" :alt="displayName" class="avatar-image"/>
     <span v-else class="avatar-initials" :style="avatarInitialsStyles">{{ initials }}</span>

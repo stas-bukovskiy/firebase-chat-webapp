@@ -29,5 +29,8 @@ export const useUserStore = defineStore('users', {
 
             return this.users.get(username);
         },
+        set(user: UserProfileEntity) {
+            this.users.set(user.username, user);
+        }
     },
 })

@@ -1,38 +1,49 @@
 <script setup lang="ts">
-import {computed, type PropType} from "vue";
+import {computed, type PropType, ref} from "vue";
 import {generateAvatarColors, generateDisplayName, generateInitials} from "@/utils/avatars.ts";
 import type {ChatAggregate} from "@/services/entities.ts";
+import {SIZE_CONFIGS} from "@/utils/avatar_config.ts";
 
 const props = defineProps({
   chatAgg: Object as PropType<ChatAggregate>,
+  size: {
+    type: String,
+    default: "default"
+  }
 });
 
-const displayName = computed(() => {
-  const chatName = props.chatAgg?.chat?.groupName;
-  return chatName ? generateDisplayName(chatName) : "";
-});
+const chatName = ref(props.chatAgg?.chat?.groupName);
 
 const initials = computed(() => {
-  const chatName = props.chatAgg?.chat?.groupName;
-  return chatName ? generateInitials(chatName) : "";
+  return chatName.value ? generateInitials(chatName.value) : "";
 });
 
-const colors = computed(() => {
-  if (!props.chatAgg.userChat.chat || !props.chatAgg.userChat.chat.id) {
-    return {bgColor: "var(--cs-avatar-default-bg-color)", textColor: "var(--cs-avatar-default-text-color)"};
+const isAvatarUrl = computed(() => props.chatAgg?.chat?.groupImageUrl);
+
+const avatarStyles = computed(() => {
+  let colors = {bgColor: "var(--cs-avatar-default-bg-color)", textColor: "var(--cs-avatar-default-text-color)"};
+  if (props.chatAgg?.chat && props.chatAgg?.chat.id) {
+    colors = generateAvatarColors(props.chatAgg?.chat.id);
   }
 
-  return generateAvatarColors(props.chatAgg.userChat.chat.id);
+  return {
+    ...SIZE_CONFIGS.get(props.size).avatar,
+    backgroundColor: colors.bgColor,
+    color: colors.textColor,
+  };
 });
 
-const isAvatarUrl = computed(() => props.chatAgg?.chat?.photoUrl);
+const avatarInitialsStyles = computed(() => {
+  return {...SIZE_CONFIGS.get(props.size).avatarInitials};
+});
+
 </script>
 
 
 <template>
-  <div class="avatar-container" :style="{ backgroundColor: colors.bgColor, color: colors.textColor }">
-    <img v-if="isAvatarUrl" :src="props.userProfile.photoUrl" :alt="displayName" class="avatar-image"/>
-    <span v-else class="avatar-initials">{{ initials }}</span>
+  <div class="avatar-container" :style="avatarStyles">
+    <img v-if="isAvatarUrl" :src="props.chatAgg?.chat?.groupImageUrl" :alt="chatName" class="avatar-image" :style="avatarStyles"/>
+    <span v-else class="avatar-initials" :style="avatarInitialsStyles">{{ initials }}</span>
   </div>
 </template>
 
@@ -40,9 +51,6 @@ const isAvatarUrl = computed(() => props.chatAgg?.chat?.photoUrl);
 <style scoped>
 .avatar-container {
   position: relative;
-  width: 46px;
-  height: 46px;
-  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -55,7 +63,6 @@ const isAvatarUrl = computed(() => props.chatAgg?.chat?.photoUrl);
 }
 
 .avatar-initials {
-  font-size: 1.4em;
   font-weight: bold;
 }
 </style>

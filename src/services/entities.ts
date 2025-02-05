@@ -28,6 +28,21 @@ export class ChatEntity extends Entity {
 
     createdBy: DocumentReference;
 
+    constructor(data?: ChatEntity) {
+        super();
+
+        if (!data) {
+            return;
+        }
+
+        this.id = data.id;
+        this.isGroup = data.isGroup;
+        this.groupName = data.groupName;
+        this.groupImageUrl = data.groupImageUrl;
+        this.members = data.members;
+        this.createdBy = data.createdBy;
+    }
+
     protected static transformFromFirestore(data: FirebaseFirestore.DocumentData): ChatEntity {
         return {
             isGroup: Boolean(data.isGroup),
@@ -105,7 +120,8 @@ export class MessageEntity extends Entity {
     attachmentsUrl: Array<string>;
     createdAt: number;
 
-    isStacked: boolean;
+    systemMessageType?: string;
+    data?: any;
 
     constructor(data: MessageEntity) {
         super(data);
@@ -114,7 +130,8 @@ export class MessageEntity extends Entity {
         this.status = data.status;
         this.attachmentsUrl = data.attachmentsUrl;
         this.createdAt = data.createdAt;
-        this.isStacked = false;
+        this.systemMessageType = data.systemMessageType;
+        this.data = data.data;
     }
 
     protected static transformFromFirestore(data: FirebaseFirestore.DocumentData): MessageEntity {
@@ -124,8 +141,8 @@ export class MessageEntity extends Entity {
             status: data.status,
             attachmentsUrl: data.attachmentsUrl || [],
             createdAt: parseInt(data.createdAt),
-
-            isStacked: false,
+            systemMessageType: data.systemMessageType || undefined,
+            data: data.data || undefined
         }
     }
 
