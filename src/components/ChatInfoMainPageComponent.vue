@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import {CARD_BADGE_COLORS} from "@/utils/avatar_config.ts";
 import UserAvatar from "@/components/UserAvatar.vue";
 import type {ChatAggregate} from "@/services/entities.ts";
@@ -21,7 +20,12 @@ import {Pages} from "@/services/enums.ts";
 import Avatar from "@/components/Avatar.vue";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
 import EditGroupModal from "@/components/EditGroupModal.vue";
-
+import {httpsCallable} from "firebase/functions";
+import {notifyError} from "@/utils/errors.ts";
+import {useNotification} from "naive-ui";
+import {db, functions} from "@/firebase";
+import {useDialog} from 'naive-ui'
+import {deleteDoc, doc} from "firebase/firestore";
 
 const props = defineProps({
   chatAgg: Object as PropType<ChatAggregate>
@@ -75,16 +79,65 @@ const handleEditGroupClick = () => {
   showEditGroupModal.value = true;
 };
 
-const handleDeleteGroupClick = () => {
-  console.log("Delete group");
+const notification = useNotification();
+const dialog = useDialog()
+
+const deleteUserChat = async () => {
+  const userChatRef = doc(db, `userChats/${currentStore.username}/chats/${props.chatAgg.chat.id}`);
+  await deleteDoc(userChatRef);
 }
+
+const handleDeleteGroupClick = async () => {
+  const d = dialog.warning({
+    title: `Are you sure you want to delete the group ${props.chatAgg?.chat?.groupName}?`,
+    content: 'You will not be able to restore the group once deleted.',
+    positiveText: 'Delete',
+    negativeText: 'Cancel',
+    onPositiveClick: () => {
+      d.loading = true;
+      return deleteUserChat()
+          .catch(error => notifyError(notification, error))
+          .finally(() => {
+            d.loading = false
+          });
+    }
+  })
+}
+
+const handleDeleteChatClick = async () => {
+  const d = dialog.warning({
+    title: `Are you sure you want to delete chat with ${displayName}?`,
+    content: `If you delete this chat, you may lose all messages and shared media, if ${displayName} also deletes the chat.`,
+    positiveText: 'Delete',
+    negativeText: 'Cancel',
+    onPositiveClick: () => {
+      d.loading = true;
+      return deleteUserChat()
+          .catch(error => notifyError(notification, error))
+          .finally(() => {
+            d.loading = false
+          });
+    }
+  })
+}
+
+const leaveGroup = httpsCallable(functions, 'leaveGroup');
 
 const handleLeaveGroupClick = () => {
-  console.log("Leave group");
-}
-
-const handleDeleteChatClick = () => {
-  console.log("Delete chat");
+  const d = dialog.warning({
+    title: `Are you sure you want to leave the group ${props.chatAgg?.chat?.groupName}?`,
+    content: 'You will not be able to rejoin the group unless invited by an admin.',
+    positiveText: 'Leave',
+    negativeText: 'Cancel',
+    onPositiveClick: () => {
+      d.loading = true;
+      return leaveGroup({chatId: props.chatAgg.chat.id})
+          .catch(error => notifyError(notification, error))
+          .finally(() => {
+            d.loading = false
+          });
+    }
+  })
 }
 
 </script>

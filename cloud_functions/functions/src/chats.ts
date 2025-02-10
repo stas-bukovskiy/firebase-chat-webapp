@@ -1,27 +1,13 @@
 import {DocumentReference, getFirestore} from "firebase-admin/firestore";
 import {onDocumentCreated, onDocumentUpdated} from "firebase-functions/firestore";
+
 import {sendNotification} from "./notifications";
+import {Chat, UPDATE_FROM} from "./models";
+import {createSystemMessage, SYSTEM_MESSAGE} from "./system_messages";
 
 const db = getFirestore()
 
-interface Chat {
-    isGroup: boolean;
-    groupName?: string;
-    groupImageUrl?: string;
-    members: Array<DocumentReference>;
-    createdBy: DocumentReference;
-}
-
-enum SYSTEM_MESSAGE {
-    GROUP_CREATED = "group_created",
-    GROUP_RENAMED = "group_renamed",
-    GROUP_IMAGE_UPDATED = "group_image_updated",
-    GROUP_MEMBER_ADDED = "group_member_added",
-    GROUP_MEMBER_REMOVED = "group_member_removed",
-}
-
-
-export const createGroup = onDocumentCreated("chats/{chatId}", async (event) => {
+export const onChatCreated = onDocumentCreated("chats/{chatId}", async (event) => {
     if (!event.data) {
         console.log("No data associated with the event");
         return;
@@ -57,17 +43,6 @@ export const createGroup = onDocumentCreated("chats/{chatId}", async (event) => 
     });
 })
 
-
-const createSystemMessage = async (chatId: string, messageType: SYSTEM_MESSAGE, data: any) => {
-    const message = {
-        systemMessageType: messageType,
-        data,
-        createdAt: Math.floor(Date.now())
-    }
-
-    await db.collection(`chats/${chatId}/messages`).add(message);
-};
-
 const createUserChat = async (chatId: string, userRef: DocumentReference) => {
     await db.doc(`userChats/${userRef.id}/chats/${chatId}`).set({
         chat: db.doc(`chats/${chatId}`),
@@ -77,7 +52,7 @@ const createUserChat = async (chatId: string, userRef: DocumentReference) => {
     })
 }
 
-export const updateGroup = onDocumentUpdated("chats/{chatId}", async (event) => {
+export const onChatUpdated = onDocumentUpdated("chats/{chatId}", async (event) => {
     if (!event.data) {
         console.log("No data associated with the event");
         return;
@@ -90,6 +65,11 @@ export const updateGroup = onDocumentUpdated("chats/{chatId}", async (event) => 
     }
 
     const newData = event.data.after.data() as Chat;
+    if (newData.metadata?.updatedFrom === UPDATE_FROM.LEAVE_GROUP) {
+        console.log("Group updated from leaveGroup, skipping");
+        return;
+    }
+
     const chatId = event.params.chatId;
 
     if (oldData.groupName !== newData.groupName) {

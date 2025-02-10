@@ -4,7 +4,6 @@ import {Attach24Filled,} from "@vicons/fluent";
 import {collection, doc, addDoc} from "firebase/firestore";
 import {db} from "@/firebase";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
-import {MessageStatus} from "@/services/entities.ts";
 import {nowToUTCTimestamp} from "@/utils/datetime.ts";
 import {SendRound} from "@vicons/material";
 import {notifyError, notifyErrorDetail} from "@/utils/errors.ts";
@@ -48,7 +47,6 @@ const submitMessage = async () => {
     addDoc(collection(db, 'chats', props.chatId, 'messages'), {
       text: messageText,
       fromUser: doc(db, 'users', currentUserStore.currentUser.username),
-      status: MessageStatus.SENT,
       attachmentsUrl: attachmentsUrl.value,
       createdAt: nowToUTCTimestamp(),
     }).catch((e) => {

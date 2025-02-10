@@ -5,7 +5,7 @@ import UploadAvatar from "@/components/UploadAvatar.vue";
 import {computed, onMounted, reactive, ref} from "vue";
 import {generateFirestoreId} from "@/utils/uid.ts";
 import {ChatEntity, PrivateChatAggregate, UserProfileEntity} from "@/services/entities.ts";
-import {collection, doc, getDocs, limit, orderBy, query, setDoc, where} from "firebase/firestore";
+import {collection, doc, getDocs, limit, orderBy, query, where} from "firebase/firestore";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
 import {CARD_BADGE_COLORS} from "@/utils/avatar_config.ts";
 import SearchPanelComponent from "@/components/SearchPanelComponent.vue";
@@ -13,6 +13,7 @@ import ChatListItem from "@/components/ChatListItem.vue";
 import {useUserStore} from "@/stores/users.ts";
 import {GroupOutlined} from "@vicons/material";
 import {useRouter} from "vue-router";
+import {useChatStore} from "@/stores/chats.ts";
 
 const RESULT_LIMIT = 10;
 
@@ -121,36 +122,18 @@ const handleAddUserClick = (username: string) => {
 
 
 const isCreateButtonDisabled = computed(() => {
-  return loading.value || groupChat.groupName?.length === 0 || groupChatMembersSet.size === 0;
+  return loading.value || groupChat.groupName?.length === 0;
 })
 
 const router = useRouter();
+const chatStore = useChatStore();
 
 const handleCreateGroup = async () => {
   groupChat.members = Array.from(groupChatMembersSet.values()).map(user => {
     return doc(db, "users", user.username);
   });
-
-  console.log("groupChat", groupChat);
-
-  const chatDocRef = doc(db, "chats", groupChat.id)
-  await setDoc(chatDocRef, {
-    isGroup: true,
-    groupName: groupChat.groupName,
-    groupImageUrl: groupChat.groupImageUrl,
-    members: groupChat.members,
-    createdBy: currentUserDocRef,
-  });
-
-  const userChatDocRef = doc(db, "userChats", currentUserStore.username, "chats", groupChat.id);
-  await setDoc(userChatDocRef, {
-    chat: chatDocRef,
-    unreadCount: 0,
-    isStarred: false,
-  });
-
+  await chatStore.createGroupChat(groupChat);
   emit("onClose")
-
   await router.push({name: "chat", params: {id: groupChat.id}});
 }
 </script>

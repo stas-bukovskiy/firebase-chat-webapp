@@ -8,12 +8,14 @@ export class UserChatEntity extends Entity {
     chat: DocumentReference;
     unreadCount: number;
     isStarred: boolean;
+    lastReadMessageTimestamp: number;
 
     protected static transformFromFirestore(data: FirebaseFirestore.DocumentData): ChatEntity {
         return {
             chat: data.chat || null,
             unreadCount: Number(data.unreadCount) || 0,
             isStarred: Boolean(data.isStarred) || false,
+            lastReadMessageTimestamp: Number(data.lastReadMessageTimestamp) || 0,
         }
     }
 }
@@ -107,17 +109,14 @@ export class GroupChatAggregate implements ChatAggregate {
     }
 }
 
-export enum MessageStatus {
-    SENT = "sent",
-    READ = "read",
-}
-
 // MessageEntity is a model that represents a message in a chat
 export class MessageEntity extends Entity {
     text: string;
     fromUser: DocumentReference;
-    status: MessageStatus;
     attachmentsUrl: Array<string>;
+    isRead: boolean;
+    readBy: Array<string>;
+    isPinned: boolean;
     createdAt: number;
 
     systemMessageType?: string;
@@ -127,8 +126,10 @@ export class MessageEntity extends Entity {
         super(data);
         this.text = data.text;
         this.fromUser = data.fromUser;
-        this.status = data.status;
         this.attachmentsUrl = data.attachmentsUrl;
+        this.isRead = data.isRead || false;
+        this.readBy = data.readBy || [];
+        this.isPinned = data.isPinned || false;
         this.createdAt = data.createdAt;
         this.systemMessageType = data.systemMessageType;
         this.data = data.data;
@@ -138,7 +139,9 @@ export class MessageEntity extends Entity {
         return {
             text: String(data.text),
             fromUser: data.fromUser,
-            status: data.status,
+            isRead: Boolean(data.isRead),
+            readBy: data.readBy || [],
+            isPinned: Boolean(data.isPinned),
             attachmentsUrl: data.attachmentsUrl || [],
             createdAt: parseInt(data.createdAt),
             systemMessageType: data.systemMessageType || undefined,
@@ -150,7 +153,7 @@ export class MessageEntity extends Entity {
         return {
             text: data.text,
             fromUser: data.fromUser,
-            status: data.status,
+            isPinned: data.isPinned ? data.isPinned : undefined,
             attachmentsUrl: data.attachmentsUrl,
             createdAt: data.createdAt,
         }

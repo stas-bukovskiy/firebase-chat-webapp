@@ -10,6 +10,8 @@ import VueChatScroll from 'vue3-chat-scroll';
 import {VueFire} from 'vuefire'
 import {app as firebaseApp} from './firebase'
 
+import {install as installDirectives} from "@/directives/intersect.ts";
+
 import App from './App.vue'
 
 
@@ -19,7 +21,7 @@ app.use(naive)
 app.use(router)
 
 const pinia = createPinia()
-pinia.use(({ store }) => {
+pinia.use(({store}) => {
     store.router = markRaw(router);
 })
 app.use(pinia)
@@ -29,6 +31,8 @@ app.use(VueFire, {
     firebaseApp,
     modules: [],
 })
+
+installDirectives(app);
 
 // if ('serviceWorker' in navigator) {
 //     navigator.serviceWorker

@@ -10,8 +10,8 @@ enum SYSTEM_MESSAGE {
   GROUP_IMAGE_UPDATED = "group_image_updated",
   GROUP_MEMBER_ADDED = "group_member_added",
   GROUP_MEMBER_REMOVED = "group_member_removed",
+  GROUP_MEMBER_LEFT = "group_member_left",
 }
-
 
 const props = defineProps({
   chatId: String,
@@ -44,6 +44,13 @@ const messageText = computed(() => {
       return `The group has been renamed to <b>${props.data.newGroupName}</b>`;
     case SYSTEM_MESSAGE.GROUP_IMAGE_UPDATED:
       return `The group image has been updated`;
+    case SYSTEM_MESSAGE.GROUP_MEMBER_LEFT:
+      if (props.data.leftMemberId === currentUserStore.username) {
+        return `<b>You</b> have left the group`;
+      } else {
+        const user = userStore.fetchByUsername(props.data.leftMemberId);
+        return `<b>${generateDisplayName(user?.data)}</b> has left the group`;
+      }
     default:
       console.error(`Unknown system message type: ${props.type}`);
       return "";

@@ -120,12 +120,10 @@ const handleAddUserClick = (username: string) => {
 
 
 const isEditButtonDisabled = computed(() => {
-  if (loading.value || groupChat.groupName?.length === 0 || groupChatMembersSet.size === 0) {
-    console.log(1, groupChat.groupName.length, groupChatMembersSet)
+  if (loading.value || groupChat.groupName?.length === 0) {
     return true
   }
   if (props.groupChat.groupName !== groupChat.groupName || props.groupChat.groupImageUrl !== groupChat.groupImageUrl) {
-    console.log(2, props.groupChat, groupChat)
     return false;
   }
 
@@ -133,24 +131,21 @@ const isEditButtonDisabled = computed(() => {
   const oldMembers = props.groupChat.members.map(member => member.id);
 
   if (newMembers.length !== oldMembers.length) {
-    console.log(3)
     return false;
   }
 
   const addedMembers = newMembers.filter(member => !oldMembers.includes(member));
   if (addedMembers.length === 0) {
-    console.log(4)
     return true
   }
 
   const removedMembers = oldMembers.filter(member => !newMembers.includes(member));
-  console.log(5, removedMembers, removedMembers.length > 0)
   return removedMembers.length === 0;
 })
 
 const router = useRouter();
 
-const handleCreateGroup = async () => {
+const handleEditGroup = async () => {
   groupChat.members = Array.from(groupChatMembersSet.values()).map(user => {
     return doc(db, "users", user.username);
   });
@@ -219,7 +214,7 @@ const handleCreateGroup = async () => {
       </div>
     </div>
     <div class="d-flex justify-content-end align-items-center px-4 py-3">
-      <n-button type="primary" @click="handleCreateGroup" :disabled="isEditButtonDisabled" class="me-3">
+      <n-button type="primary" @click="handleEditGroup" :disabled="isEditButtonDisabled" class="me-3">
         Save changes
       </n-button>
       <n-button type="tertiary" @click="emit('onClose')" :disabled="loading">Cancel</n-button>

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 
-import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue';
+import {computed, nextTick, onMounted, onUnmounted, type PropType, ref, watch} from 'vue';
 import MessageInput from "@/components/MessageInput.vue";
 import MessageComponent from "@/components/MessageComponent.vue";
-import {MessageEntity, MessageStatus} from "@/services/entities.ts";
+import {type ChatAggregate, MessageEntity} from "@/services/entities.ts";
 import {
   collection,
   doc,
@@ -15,7 +15,9 @@ import {
   startAt,
   where,
   or,
-  updateDoc
+  updateDoc,
+  and,
+  arrayUnion,
 } from "firebase/firestore";
 import {db} from "@/firebase";
 import {notifyError} from "@/utils/errors.ts";
@@ -23,11 +25,12 @@ import {useNotification} from "naive-ui";
 import {nowToUTCTimestamp} from "@/utils/datetime.ts";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
 import SystemMessageComponent from "@/components/SystemMessageComponent.vue";
+import type {QueryFilterConstraint} from "@firebase/firestore";
 
 const PAGE_SIZE = 24;
 
 const props = defineProps({
-  chatId: String,
+  chatAgg: Object as PropType<ChatAggregate>,
 });
 
 const notification = useNotification();
@@ -48,15 +51,14 @@ let firstNewMessageId = null;
 let unsubscribe = null;
 
 const messagesSource = computed(() => {
-  return collection(db, 'chats', props.chatId, 'messages').withConverter(MessageEntity.converter);
+  return collection(db, 'chats', props.chatAgg?.chat?.id, 'messages').withConverter(MessageEntity.converter);
 });
 
 onMounted(async () => {
   await handleInitialFetch();
-  console.log("messages", messages);
 });
 
-watch(() => props.chatId, async () => {
+watch(() => props.chatAgg, async () => {
   await handleInitialFetch();
 });
 
@@ -100,13 +102,22 @@ const reset = () => {
 };
 
 const fetchInitialOldMessages = async () => {
-  const q = query(messagesSource.value,
-      or(
-          where("status", "==", MessageStatus.READ),
-          where("fromUser", "==", doc(db, "users", currentUserStore.currentUser.username)),
-          where("systemMessageType", "!=", null)
-      ),
-      orderBy('createdAt', 'desc'),
+  const queryFilter = new Array<QueryFilterConstraint>(
+      where("fromUser", "==", doc(db, "users", currentUserStore.currentUser.username)),
+      where("systemMessageType", '==', null),
+      where("systemMessageType", ">=", 0)
+  );
+
+  if (props.chatAgg?.chat.isGroup) {
+    queryFilter.push(and(
+        where("isRead", "==", true),
+        where("readBy", "array-contains", currentUserStore.username)
+    ));
+  } else {
+    queryFilter.push(where("isRead", "==", true));
+  }
+
+  const q = query(messagesSource.value, or(...queryFilter), orderBy('createdAt', 'desc'),
       limit(PAGE_SIZE));
   const snapshot = await getDocs(q);
   const prevMessages = snapshot.docs.map(doc => doc.data());
@@ -184,9 +195,9 @@ onUnmounted(() => {
 });
 
 const onScroll = async () => {
-  if (!chatContainer.value || isInitialLoading) return
+  if (!chatContainer.value) return
 
-  updateReadStatus();
+  updateScrolledMessageStatuses();
 
   const {scrollTop, scrollHeight, clientHeight} = chatContainer.value;
   if (chatContainer.value.scrollTop === 0 && messages.value.length) {
@@ -278,18 +289,25 @@ const computeStacked = (message: MessageEntity, index: number) => {
   return nextMessage.fromUser?.id === message.fromUser?.id;
 }
 
+const isMessageRead = (message: MessageEntity) => {
+  if (!message)
+    return false;
+
+  return (message.isRead && props.chatAgg?.chat.isGroup) || message.readBy.includes(currentUserStore.username);
+}
+
 const isNewMessage = (index: number) => {
   if (index === messages.value.length - 1 || index < 0) {
     return false;
   }
 
-  const prevMessage = index !== 0 ? messages.value[index - 1] : null;
-  if (prevMessage && prevMessage.status === MessageStatus.SENT) {
+  const prevMessage = index !== 0 ? messages.value[index - 1] : undefined;
+  if (prevMessage && !isMessageRead(prevMessage)) {
     return false;
   }
 
   const currMessage = messages.value[index];
-  if (currMessage.fromUser?.id !== currentUserStore.currentUser.username && currMessage.status === MessageStatus.SENT) {
+  if (currMessage.fromUser?.id !== currentUserStore.currentUser.username && !isMessageRead(currMessage)) {
     firstNewMessageId = currMessage.id;
     return true;
   }
@@ -317,6 +335,23 @@ function scrollToMessageById(messageId: number): void {
   }
 }
 
+const updateScrolledMessageStatuses = () => {
+  if (!chatContainer.value) return;
+
+  const containerElement = chatContainer.value;
+  const messageElements = containerElement.querySelectorAll<HTMLElement>('.message');
+
+  messageElements.forEach(async (messageElement) => {
+    const messageId = messageElement.dataset.id || ''
+    const message = messages.value.find((msg) => msg.id === messageId);
+
+    if (message && isMessageVisible(messageElement, containerElement)) {
+      updateReadStatus(message);
+    }
+  });
+}
+
+
 // Function to check if a message is visible
 function isMessageVisible(messageElement: HTMLElement, containerElement: HTMLElement): boolean {
   const messageRect = messageElement.getBoundingClientRect();
@@ -329,25 +364,14 @@ function isMessageVisible(messageElement: HTMLElement, containerElement: HTMLEle
 }
 
 // Function to update read status of messages
-function updateReadStatus(): void {
-  if (!chatContainer.value) return;
-
-  const containerElement = chatContainer.value;
-  const messageElements = containerElement.querySelectorAll<HTMLElement>('.message');
-
-  messageElements.forEach(async (messageElement) => {
-    const messageId = messageElement.dataset.id || ''
-    const message = messages.value.find((msg) => msg.id === messageId);
-
-    if (message && isMessageVisible(messageElement, containerElement)
-        && message.status !== MessageStatus.READ && message.fromUser?.id !== currentUserStore.currentUser.username) {
-      message.status = MessageStatus.READ;
-      const messageRef = doc(db, 'chats', props.chatId, 'messages', messageId);
-      await updateDoc(messageRef, {
-        status: MessageStatus.READ
-      });
-    }
-  });
+function updateReadStatus(message: MessageEntity): void {
+  if (message && !isMessageRead(message) && message.fromUser?.id !== currentUserStore.currentUser.username) {
+    console.log('Updating read status for message', message.text);
+    // await updateDoc(doc(db, 'chats', props.chatAgg?.chat?.id, 'messages', messageId), {
+    //   isRead: true,
+    //   readBy: arrayUnion(currentUserStore.username),
+    // });
+  }
 }
 
 </script>
@@ -362,15 +386,16 @@ function updateReadStatus(): void {
     </div>
 
     <div style="margin-top: auto;">
-      <div v-if="!isInitialLoading && messages" v-for="(message, index) in messages" :key="message.id"
-           class="message" :data-id="message.id">
+      <div v-if="!isInitialLoading && messages" v-for="(message, index) in messages" :key="message.id" class="message"
+           :data-id="message.id"
+           v-intersect="{callback: () => updateReadStatus(message), options: { root: chatContainer, threshold: 0.5 } }">
         <n-divider v-if="isNewMessage(index)">
           <span slot="content">Unread messages</span>
         </n-divider>
         <SystemMessageComponent v-if="message.systemMessageType" :type="message.systemMessageType"
                                 :data="message.data"/>
         <MessageComponent v-else :message="message" :chatId="props.chatId" :attachmentsUrl="message.attachmentsUrl"
-                          :isStacked="computeStacked(message, index)"/>
+                          :isStacked="computeStacked(message, index)" :isRead="isMessageRead(message)"/>
       </div>
     </div>
 
@@ -380,7 +405,7 @@ function updateReadStatus(): void {
   </div>
 
   <div style=" flex-grow: 1;">
-    <MessageInput :disabled="isInitialLoading" :chatId="props.chatId"/>
+    <MessageInput :disabled="isInitialLoading" :chatId="props.chatAgg?.chat?.id"/>
   </div>
 </template>
 

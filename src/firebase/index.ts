@@ -2,7 +2,8 @@ import {initializeApp} from "firebase/app";
 import {getFirestore, connectFirestoreEmulator} from "firebase/firestore";
 import {getAuth, connectAuthEmulator} from "firebase/auth";
 import {getStorage, connectStorageEmulator} from "firebase/storage";
-import { getMessaging } from "firebase/messaging";
+import {getMessaging} from "firebase/messaging";
+import {getFunctions, connectFunctionsEmulator} from "firebase/functions";
 
 const firebaseConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
@@ -25,3 +26,5 @@ connectAuthEmulator(auth, "http://127.0.0.1:9099");
 export const storage = getStorage(app);
 // connectStorageEmulator(storage, "127.0.0.1", 9199);
 export const messaging = getMessaging(app);
+export const functions = getFunctions(app);
+connectFunctionsEmulator(functions, "127.0.0.1", 5001);

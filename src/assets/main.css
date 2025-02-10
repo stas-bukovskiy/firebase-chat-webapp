@@ -4,6 +4,10 @@ body {
     background-color: var(--cs-main-bg-color);
 }
 
+h1, h2, h3, h4, h5, h6 {
+    margin-bottom: 0;
+}
+
 /* --- Chat info pages --- */
 .chat-info-container {
     width: 100%;
@@ -33,4 +37,10 @@ body {
 
 .bordered-right {
     border-right: 2px solid var(--cs-sub-card-bg-color);
+}
+
+.n-base-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

@@ -22,7 +22,7 @@ watch(() => route.params, (params) => {
     <div class="col-8 pe-0">
       <!--Chat body-->
       <div class="chat-body-layout">
-        <ChatComponent :chatId="chatAgg?.chat?.id"/>
+        <ChatComponent :chatAgg="chatAgg"/>
       </div>
     </div>
 

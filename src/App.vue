@@ -9,6 +9,14 @@ const themeOverrides: GlobalThemeOverrides = {
   Button: {
     fontSizeLarge: '1rem',
   },
+  Tooltip: {
+    color: 'var(--cs-sub-card-bg-color)',
+    borderRadius: '6px',
+  },
+  Notification: {
+    borderRadius: '8px',
+    color: 'var(--cs-sub-card-bg-color)',
+}
 }
 
 </script>
@@ -17,7 +25,9 @@ const themeOverrides: GlobalThemeOverrides = {
   <n-config-provider :theme="darkTheme" :theme-overrides="themeOverrides">
     <n-notification-provider>
       <n-modal-provider>
-        <RouterView/>
+        <n-dialog-provider>
+          <RouterView/>
+        </n-dialog-provider>
       </n-modal-provider>
     </n-notification-provider>
   </n-config-provider>

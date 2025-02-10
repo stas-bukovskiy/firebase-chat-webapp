@@ -1,6 +1,6 @@
 import {defineStore} from "pinia";
 import {db} from "@/firebase";
-import {collection, doc, addDoc, onSnapshot, query, where, documentId} from "firebase/firestore";
+import {collection, doc, addDoc, onSnapshot, query, where, documentId, setDoc} from "firebase/firestore";
 import {ChatEntity, type ChatAggregate, GroupChatAggregate, PrivateChatAggregate} from "@/services/entities.ts";
 import {UserChatEntity} from "@/services/entities.ts";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
@@ -157,20 +157,32 @@ export const useChatStore = defineStore("chats", {
             });
 
             // Add the chat to the user's chat list
-            const userChatRef = await addDoc(collection(db, "userChats", currentUserStore.username, "chats"), {
+            await setDoc(doc(db, "userChats", currentUserStore.username, "chats", chatRef.id), {
                 chat: chatRef,
                 isStarred: false,
                 unreadCount: 0,
             });
 
-            // TODO: move to cloud function
-            // Add the chat to the other user's chat list
-            // await addDoc(collection(db, "userChats", username, "chats"), {
-            //     chat: chatRef,
-            //     isStarred: false,
-            //     unreadCount: 0,
-            // });
-            return userChatRef.id;
+            return chatRef.id;
+        },
+        async createGroupChat(groupChat: ChatEntity) {
+            const currentUserStore = useCurrentUserStore();
+            const currentUserRef = doc(db, "users", currentUserStore.username);
+            const chatDocRef = doc(db, "chats", groupChat.id)
+            await setDoc(chatDocRef, {
+                isGroup: true,
+                groupName: groupChat.groupName,
+                groupImageUrl: groupChat.groupImageUrl,
+                members: groupChat.members,
+                createdBy: currentUserRef,
+            });
+
+            const userChatDocRef = doc(db, "userChats", currentUserStore.username, "chats", groupChat.id);
+            await setDoc(userChatDocRef, {
+                chat: chatDocRef,
+                unreadCount: 0,
+                  isStarred: false,
+            });
         }
     },
     getters: {

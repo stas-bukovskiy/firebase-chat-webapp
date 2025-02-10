@@ -9,7 +9,7 @@ const INVALID_ARGUMENT_ERROR_CODE = 'messaging/invalid-argument';
 const db = getFirestore()
 const messaging = getMessaging();
 
-export const sendMessage = onDocumentCreatedWithAuthContext("chats/{chatId}/messages/{messageId}",
+export const onMessageCreated = onDocumentCreatedWithAuthContext("chats/{chatId}/messages/{messageId}",
     async (event) => {
         const snapshot = event.data;
         if (!snapshot) {
@@ -108,7 +108,7 @@ const getOrCreateUserChat = async (userRef: DocumentReference, chatId: string): 
         .where("chat", "==", db.doc(`chats/${chatId}`)).get();
     if (userChatSnapshot.empty) {
         // create userChat
-        await db.collection(`userChats/${userRef.id}/chats`).add({
+        await db.doc(`userChats/${userRef.id}/chats/${chatId}`).set({
             chat: db.doc(`chats/${chatId}`),
             unreadCount: 1, // set unreadCount to 1 since it is a new chat that created from sendMessage function
             isStarred: false,
