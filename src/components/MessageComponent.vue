@@ -8,6 +8,7 @@ import {useUserStore} from "@/stores/users.ts";
 import {SUB_CARD_BADGE_COLORS} from "@/utils/avatar_config.ts";
 import AttachmentComponent from "@/components/AttachmentComponent.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
+import {togglePinnedMessage} from "@/services/PinnedMessageService.ts";
 
 const props = defineProps({
   chatId: String,
@@ -30,6 +31,10 @@ const userProfile = computed(() => {
   return usersStore.fetchByUsername(props.message.fromUser.id)?.data;
 });
 
+const handlePinToggleClick = async () => {
+  await togglePinnedMessage(props.chatId, props.message);
+}
+
 </script>
 
 <template>
@@ -48,8 +53,6 @@ const userProfile = computed(() => {
             <span>{{ props.message.text }}</span>
 
             <div v-if="fromCurrentUser" :class="props.isStacked ? 'mt-2' : 'message-status-absolute'">
-<!--              <div v-if="message.status === 'sending'" class="spinner-border spinner-border-sm"-->
-<!--                   style="color: var(&#45;&#45;cs-primary-color)"/>-->
               <div>
                 <n-icon :color="props.isRead ? 'var(--cs-primary-color)' : 'var(--cs-text-color)'"
                         size="large">
@@ -70,7 +73,7 @@ const userProfile = computed(() => {
       </div>
     </template>
 
-    <n-button text>
+    <n-button text @click="handlePinToggleClick">
       <n-icon size="24px" class="d-flex align-items-baseline justify-content-center me-2">
         <Pin24Regular v-if="!message.isPinned"/>
         <PinOff24Regular v-else/>

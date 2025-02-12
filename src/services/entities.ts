@@ -159,3 +159,28 @@ export class MessageEntity extends Entity {
         }
     }
 }
+
+export class PinnedMessageEntity extends Entity {
+    message: DocumentReference;
+    createdAt: number;
+
+    constructor(data: PinnedMessageEntity) {
+        super(data);
+        this.message = data.message;
+        this.createdAt = data.createdAt;
+    }
+
+    protected static transformFromFirestore(data: FirebaseFirestore.DocumentData): PinnedMessageEntity {
+        return {
+            message: data.message,
+            createdAt: data.createdAt,
+        }
+    }
+
+    protected static transformToFirestore(data: PinnedMessageEntity): FirebaseFirestore.DocumentData {
+        return {
+            message: data.message,
+            createdAt: data.createdAt,
+        }
+    }
+}

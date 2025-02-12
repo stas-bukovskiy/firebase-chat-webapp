@@ -8,6 +8,8 @@ import {auth} from "@/firebase";
 import AppView from "@/views/AppView.vue";
 import ChatView from "@/views/ChatView.vue";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
+import ChatLayout from "@/layouts/ChatLayout.vue";
+import ChatPinnedMessagesView from "@/views/ChatPinnedMessagesView.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -45,9 +47,20 @@ const router = createRouter({
                     component: AppView,
                 },
                 {
-                    name: "chat",
                     path: "chat/:id",
-                    component: ChatView
+                    component: ChatLayout,
+                    children: [
+                        {
+                            path: '',
+                            name: "chat",
+                            component: ChatView,
+                        },
+                        {
+                            path: "pinned-messages",
+                            name: "chat-pinned-messages",
+                            component: ChatPinnedMessagesView
+                        }
+                    ]
                 }
             ]
         }

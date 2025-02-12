@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import {computed, nextTick, onMounted, onUnmounted, type PropType, ref, watch} from 'vue';
 import MessageInput from "@/components/MessageInput.vue";
 import MessageComponent from "@/components/MessageComponent.vue";
@@ -161,14 +160,15 @@ const subscribeToNewMessages = () => {
       messages.value[messages.value.length - 1].createdAt + 1 :
       nowToUTCTimestamp();
 
-  const q = query(messagesSource.value,
-      orderBy('createdAt', 'asc'),
-      startAt(lastMessageCreatedAt));
-
-  unsubscribe = onSnapshot(q, (snapshot) => {
+  const subRef = collection(db, 'chats', props.chatAgg?.chat?.id, 'messages').withConverter(MessageEntity.converter);
+  unsubscribe = onSnapshot(subRef, (snapshot) => {
     snapshot.docChanges().forEach((change) => {
       if (change.type === "added") {
         const newMessage = change.doc.data();
+
+        if (lastMessageCreatedAt > newMessage.createdAt) {
+          return;
+        }
 
         if (!chatContainer?.value) {
           messages.value.push(newMessage);
@@ -184,6 +184,12 @@ const subscribeToNewMessages = () => {
               scrollToBottom()
             });
           }
+        }
+      } else if (change.type === "modified") {
+        const updatedMessage = change.doc.data();
+        const index = messages.value.findIndex((msg) => msg.id === updatedMessage.id);
+        if (index !== -1) {
+          messages.value[index] = updatedMessage;
         }
       }
     });
@@ -394,7 +400,8 @@ function updateReadStatus(message: MessageEntity): void {
         </n-divider>
         <SystemMessageComponent v-if="message.systemMessageType" :type="message.systemMessageType"
                                 :data="message.data"/>
-        <MessageComponent v-else :message="message" :chatId="props.chatId" :attachmentsUrl="message.attachmentsUrl"
+        <MessageComponent v-else :message="message" :chatId="props.chatAgg?.chat.id"
+                          :attachmentsUrl="message.attachmentsUrl"
                           :isStacked="computeStacked(message, index)" :isRead="isMessageRead(message)"/>
       </div>
     </div>

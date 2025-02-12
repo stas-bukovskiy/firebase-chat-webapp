@@ -12,7 +12,7 @@ import {
   People20Regular,
   Image20Regular,
   Document20Regular,
-  Link20Regular,
+  Link20Regular, Pin24Regular,
 } from '@vicons/fluent';
 import ChatInfoListItemComponent from "@/components/ChatInfoListItemComponent.vue";
 import {useUserStore} from "@/stores/users.ts";
@@ -26,6 +26,7 @@ import {useNotification} from "naive-ui";
 import {db, functions} from "@/firebase";
 import {useDialog} from 'naive-ui'
 import {deleteDoc, doc} from "firebase/firestore";
+import {useRouter} from "vue-router";
 
 const props = defineProps({
   chatAgg: Object as PropType<ChatAggregate>
@@ -60,6 +61,13 @@ const members = computed(() => {
 const handleStarClick = () => {
   // TODO
   console.log("Star clicked");
+}
+
+
+const router = useRouter();
+
+const handlePinnedMessagesClick = () => {
+  router.push({name: 'chat-pinned-messages', params: {id: props.chatAgg.chat.id}});
 }
 
 const handleMediaClick = () => {
@@ -164,6 +172,17 @@ const handleLeaveGroupClick = () => {
         </div>
       </div>
     </div>
+  </div>
+
+  <div class="bordered-bottom py-2">
+    <ChatInfoListItemComponent @click="handlePinnedMessagesClick">
+      <template #icon>
+        <n-icon size="28px" class="d-flex align-items-baseline me-3">
+          <Pin24Regular/>
+        </n-icon>
+      </template>
+      Pinned messages
+    </ChatInfoListItemComponent>
   </div>
 
   <div class="bordered-bottom py-2">
