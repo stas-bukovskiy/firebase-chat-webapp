@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import {CARD_BADGE_COLORS} from "@/utils/avatar_config.ts";
 import UserAvatar from "@/components/UserAvatar.vue";
 import type {ChatAggregate} from "@/services/entities.ts";
 import {computed, type PropType, ref} from "vue";
@@ -154,7 +153,7 @@ const handleLeaveGroupClick = () => {
   <div class="chat-info-container">
 
     <div class="d-flex align-items-center px-4 py-3 bordered-bottom">
-      <Avatar :chatAgg="props.chatAgg" :badgeBorderColors="CARD_BADGE_COLORS" size="big" class="me-3"/>
+      <Avatar :chatAgg="props.chatAgg" size="big" class="me-3"/>
 
       <div class="row m-0 p-0" style="width: 100%">
         <div class="col-9 m-0 p-0 d-flex flex-column justify-content-center chat-info-text">
@@ -224,7 +223,7 @@ const handleLeaveGroupClick = () => {
 
     <ChatInfoListItemComponent class="" v-for="member in members">
       <template #icon>
-        <UserAvatar :userProfile="member.data" :badgeBorderColors="CARD_BADGE_COLORS" size="small" class="me-3"/>
+        <UserAvatar :userProfile="member.data" size="small" class="me-3"/>
       </template>
       {{ generateDisplayName(member.data) }}
     </ChatInfoListItemComponent>

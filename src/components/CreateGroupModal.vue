@@ -7,7 +7,6 @@ import {generateFirestoreId} from "@/utils/uid.ts";
 import {ChatEntity, PrivateChatAggregate, UserProfileEntity} from "@/services/entities.ts";
 import {collection, doc, getDocs, limit, orderBy, query, where} from "firebase/firestore";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
-import {CARD_BADGE_COLORS} from "@/utils/avatar_config.ts";
 import SearchPanelComponent from "@/components/SearchPanelComponent.vue";
 import ChatListItem from "@/components/ChatListItem.vue";
 import {useUserStore} from "@/stores/users.ts";
@@ -141,8 +140,8 @@ const handleCreateGroup = async () => {
 <template>
   <div class="modal-card" role="dialog" aria-modal="true" style="padding: 0;">
     <div class="px-4 py-3 d-flex justify-content-between align-items-center bordered-bottom">
-      <div class="d-flex align-items-baseline">
-        <n-icon class="h4 me-3">
+      <div class="d-flex align-items-center">
+        <n-icon class="d-flex align-items-center h4 mb-0 me-3">
           <GroupAddOutlined/>
         </n-icon>
         <h4 class="h4 mb-0">New group chat</h4>
@@ -173,7 +172,7 @@ const handleCreateGroup = async () => {
           <div class="mb-1" v-for="chat in searchResult">
             <ChatListItem class="mb-0" :chatAgg="chat"
                           :isCurrent="groupChatMembersSet.has(chat.otherUserProfile?.username)"
-                          @clickUserProfile="handleAddUserClick" :badgeBorderColors="CARD_BADGE_COLORS"/>
+                          @clickUserProfile="handleAddUserClick"/>
           </div>
         </n-scrollbar>
       </div>

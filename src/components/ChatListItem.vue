@@ -41,7 +41,8 @@ const isGroup = computed(() => {
 
 <template>
   <div class="chat-item d-flex w-100 align-items-center" @mouseover="isHover = true" @mouseleave="isHover = false"
-       @click="handleClick" :style="{ backgroundColor: isHover || props.isCurrent ? '#293632' : '' }">
+       @click="handleClick"
+       :style="{ backgroundColor: isHover || props.isCurrent ? 'var(--cs-current-item-bg-color)' : '' }">
     <div>
       <Avatar :chatAgg="props.chatAgg" :isCurrent="isHover || props.isCurrent"
               :badgeBorderColors="props.badgeBorderColors"/>
@@ -65,6 +66,6 @@ const isGroup = computed(() => {
 }
 
 .chat-item:hover {
-  background-color: #293632;
+  background-color: var(--cs-current-item-bg-color);
 }
 </style>

@@ -7,6 +7,7 @@ import {useRouter} from "vue-router";
 import {signInWithEmailAndPassword} from "firebase/auth";
 import {auth} from "@/firebase";
 import {notifyError} from "@/utils/errors.ts";
+import Logo from "@/components/Logo.vue";
 
 
 const loginParams = reactive({
@@ -77,6 +78,9 @@ const goToRegistration = () => {
 
 <template>
   <div class="container d-flex flex-column justify-content-center align-items-center rounded-5 p-5">
+    <div class="d-flex align-items-center mb-3">
+      <img src = "@/assets/logo.svg" alt="logo" width="42" height="42">
+    </div>
     <h1 class="mb-2">Welcome back!</h1>
     <h3 class="mb-3 text-muted">Login your account</h3>
     <n-form
@@ -107,7 +111,7 @@ const goToRegistration = () => {
 
     <div class="mt-4">
       Don't have an account?
-      <n-button text @click="goToRegistration" size="large" type="primary">
+      <n-button text @click="goToRegistration" type="primary">
         Register here
       </n-button>
     </div>

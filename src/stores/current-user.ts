@@ -1,13 +1,19 @@
 import {defineStore} from 'pinia'
-import {collection, query, where, getDocs} from "firebase/firestore";
+import {collection, getDocs, onSnapshot, query, where} from "firebase/firestore";
 import {db} from "@/firebase";
 import {UserProfileEntity} from "@/services/entities.ts";
+import {notifyError} from "@/utils/errors.ts";
+import {useNotification} from "naive-ui";
+import {reactive} from "vue";
 
 export const useCurrentUserStore = defineStore('currentUser', {
     state: () => ({
-        currentUser: null,
+        currentUser: reactive(new UserProfileEntity())
     }),
     getters: {
+        user() {
+            return this.currentUser
+        },
         isEmpty() {
             return !this.currentUser.id
         },
@@ -35,14 +41,38 @@ export const useCurrentUserStore = defineStore('currentUser', {
                 return null
             } else {
                 const doc = querySnapshot.docs[0];
-                const user = doc.data();
-
-                this.currentUser = user;
-                return user
+                this.setUser(doc.data() as UserProfileEntity);
             }
+
+            onSnapshot(userQuery, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === "added") {
+                        this.setUser(change.doc.data() as UserProfileEntity);
+                    } else if (change.type === "modified") {
+                        this.setUpdatedUser(change.doc.data() as UserProfileEntity);
+                    }
+                });
+            }, error => {
+                notifyError(useNotification(), error)
+            })
+
+            return this.currentUser;
         },
         setUser(user: UserProfileEntity) {
-            this.currentUser = user
+            this.currentUser.id = user.id
+            this.currentUser.uid = user.uid
+            this.currentUser.email = user.email
+            this.currentUser.firstName = user.firstName
+            this.currentUser.lastName = user.lastName
+            this.currentUser.username = user.username
+            this.currentUser.photoUrl = user.photoUrl
+            this.currentUser.createdAt = user.createdAt
         },
+        setUpdatedUser(updatedUser: UserProfileEntity) {
+            this.currentUser.firstName = updatedUser.firstName
+            this.currentUser.lastName = updatedUser.lastName
+            this.currentUser.username = updatedUser.username
+            this.currentUser.photoUrl = updatedUser.photoUrl
+        }
     },
 })

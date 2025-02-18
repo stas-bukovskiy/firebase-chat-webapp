@@ -23,7 +23,7 @@ provide(INJECT_KEYS.ChatAgg, chatAgg);
   <div class="row chat-container">
     <div class="col-8 pe-0">
       <!--Chat body-->
-      <div class="chat-body-layout">
+      <div class="chat-body-layout bordered-right">
         <RouterView/>
       </div>
     </div>
@@ -38,11 +38,9 @@ provide(INJECT_KEYS.ChatAgg, chatAgg);
 .chat-body-layout {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 2.8rem);
-  max-height: calc(100vh - 2.8rem);
+  height: calc(100vh - 2.7rem);
+  max-height: calc(100vh - 2.9rem);
   overflow: hidden;
-
-  border-right: 2px solid #333;
 }
 
 .chat-info-layout {

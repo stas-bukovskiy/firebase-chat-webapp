@@ -263,7 +263,7 @@ const handleCreateProfileDetailsClick = (e: MouseEvent) => {
         <div class="row row-cols-auto">
           <div class="col-4 d-flex align-items-center justify-content-center">
             <div>
-              <UploadAvatar :display-name="displayName" :avatar-key="auth.currentUser?.uid"
+              <UploadAvatar size="large" :display-name="displayName" :avatar-key="auth.currentUser?.uid"
                             @new-avatar-url="handleNewAvatarUrl" @update:is-loading="loading = $event"/>
             </div>
           </div>

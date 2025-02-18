@@ -28,10 +28,10 @@ initializeMessageListener(showChatNotification);
 <style scoped>
 .sidebar {
   margin: 0;
-  padding: 0.6rem 1.2rem 1.4rem 1.4rem;
+  padding: 0.6rem 0 1.4rem 1.4rem;
   width: 400px;
   position: fixed;
-  height: 100%;
+  height: 100vh;
   overflow: auto;
 }
 
@@ -42,9 +42,9 @@ div.content {
 }
 
 .content-inner {
-  background-color: #272727;
+  background-color: var(--cs-card-bg-color);
   margin: 1.4rem 1.4rem 1.4rem 0;
-  border-radius: 16px;
+  border-radius: 20px;
   height: calc(100vh - 2.9rem);
 }
 

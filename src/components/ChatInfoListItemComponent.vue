@@ -11,7 +11,7 @@ defineEmits("click");
 </script>
 
 <template>
-  <div class="px-4 py-2 d-flex align-items-center" style="width: 100%"
+  <div class="px-4 py-2 d-flex align-items-center rounded-3" style="width: 100%"
        :class="isClickable ? 'item-clickable' : ''">
     <div class="item-icon">
       <slot name="icon"/>

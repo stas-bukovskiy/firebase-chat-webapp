@@ -5,9 +5,9 @@ import {onMounted, onUnmounted, ref} from "vue";
 import {useRouter} from "vue-router";
 import SearchModal from "@/components/SearchModal.vue";
 import {useChatStore} from "@/stores/chats.ts";
-import {DEFAULT_BADGE_COLORS} from "@/utils/avatar_config.ts";
 import {GroupAddOutlined, SearchRound} from "@vicons/material";
 import CreateGroupModal from "@/components/CreateGroupModal.vue";
+import ProfileComponent from "@/components/ProfileComponent.vue";
 
 const chatStore = useChatStore();
 
@@ -47,8 +47,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="py-3">
-    <div class="header-container mb-3 p-3 d-flex justify-content-between align-items-center">
+  <div class="py-3 pe-2" style="height: calc(100vh - 2.9rem);">
+    <div class="header-container mb-3 p-3 d-flex justify-content-between align-items-center me-3">
       <Logo/>
       <div class="div">
         <n-button text class="me-2" @click="handleCreateGroupClick">
@@ -63,13 +63,16 @@ onUnmounted(() => {
         </n-button>
       </div>
     </div>
-    <n-scrollbar style="max-height: calc(100vh - 224px)" trigger="none">
-      <div class="mb-1 pe-3" v-for="chat in chats">
-        <ChatListItem class="mb-0" :chatAgg="chat" :badgeBorderColors="DEFAULT_BADGE_COLORS"
+    <n-scrollbar style="max-height: calc(100vh - 15.3rem)" trigger="hover">
+      <div class="mb-1 me-3" v-for="chat in chats">
+        <ChatListItem class="mb-0" :chatAgg="chat"
                       :isCurrent="currentChatUid === chat.uid" @click="handleChatClick"
                       @clickUserProfile="handleChatClick"/>
       </div>
     </n-scrollbar>
+    <div class="mt-auto me-3">
+      <ProfileComponent/>
+    </div>
   </div>
 
   <n-modal v-model:show="showSearchModal" :mask-closable="false">

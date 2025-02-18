@@ -1,20 +1,24 @@
 /* color palette from <https://github.com/vuejs/theme> */
 :root {
-    --cs-primary-color: #63e2b7;
+    --cs-primary-color: #fca311;
+    --cs-primary-color-hover: #FDB035;
+    --cs-primary-color-pressed: #FDA10D;
 
-    --cs-main-bg-color: #1F1F1F;
-    --cs-card-bg-color: rgb(41, 41, 41);
-    --cs-sub-card-bg-color: #333333;
+    --cs-main-bg-color: #191627;
+    --cs-card-bg-color: #221E34;
+    --cs-sub-card-bg-color: #2A2541;
+
+    --cs-current-item-bg-color: rgba(253, 161, 13, 0.25);
 
     --cs-avatar-default-bg-color: var(--cs-primary-color);
     --cs-avatar-default-text-color: #1F1F1F;
 
     --cs-badge-online-bg-color: #4CAF50;
-    --cs-badge-offline-bg-color: #393939;
+    --cs-badge-offline-bg-color: #3D3E3D;
+    --cd-badge-border-color: #2A2B2A;
 
     --cs-badge-default-bg-color: var(--cs-main-bg-color);
-    --cs-badge-current-bg-color: #293632;
-
+    --cs-badge-current-bg-color: var(--cs-current-item-bg-color);
     --cs-scrollbar-color: #4C4C4C;
     --cs-scrollbar-hover-color: #636363;
 }

@@ -3,7 +3,6 @@
 import {computed, type PropType} from "vue";
 import type {UserProfileEntity} from "@/services/entities.ts";
 import UserAvatar from "@/components/UserAvatar.vue";
-import {CARD_BADGE_COLORS} from "@/utils/avatar_config.ts";
 import {generateDisplayName} from "@/utils/avatars.ts";
 import {Send24Regular} from "@vicons/fluent";
 
@@ -23,7 +22,7 @@ const displayName = computed(() => {
   <n-card class="modal-card" :bordered="false" size="huge" role="dialog" aria-modal="true">
     <div class="d-flex justify-content-between">
       <div class="d-flex align-items-center">
-        <UserAvatar :userProfile="props.userProfile" :badgeBorderColors="CARD_BADGE_COLORS" size="big"/>
+        <UserAvatar :userProfile="props.userProfile" size="big"/>
         <div class="ms-4 d-flex flex-column">
           <h3 class="mb-0">{{ displayName }}</h3>
           <h5 class="mb-0 text-muted">@{{ props.userProfile.username }}</h5>

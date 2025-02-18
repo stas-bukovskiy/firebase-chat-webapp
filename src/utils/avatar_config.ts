@@ -1,23 +1,3 @@
-export interface AvatarBadgeBorderColors {
-    color: string;
-    hoverColor: string;
-}
-
-export const DEFAULT_BADGE_COLORS: AvatarBadgeBorderColors = {
-    color: "var(--cs-badge-default-bg-color)",
-    hoverColor: "var(--cs-badge-current-bg-color)"
-}
-
-export const CARD_BADGE_COLORS: AvatarBadgeBorderColors = {
-    color: "var(--cs-card-bg-color)",
-    hoverColor: "var(--cs-badge-current-bg-color)"
-}
-
-export const SUB_CARD_BADGE_COLORS: AvatarBadgeBorderColors = {
-    color: "var(--cs-sub-card-bg-color)",
-    hoverColor: "var(--cs-badge-current-bg-color)"
-}
-
 export const SIZE_CONFIGS = new Map([
     ["small", {
         avatar: {
@@ -36,7 +16,7 @@ export const SIZE_CONFIGS = new Map([
             width: "8px",
             height: "8px",
             borderRadius: "50%",
-            border: "3px solid var(--cs-badge-default-bg-color)",
+            border: "3px solid var(--cd-badge-border-color)",
         }
     }],
     ["default", {
@@ -53,10 +33,10 @@ export const SIZE_CONFIGS = new Map([
         badge: {
             top: "-4px",
             left: "34px",
-            width: "12px",
-            height: "12px",
+            width: "10px",
+            height: "10px",
             borderRadius: "50%",
-            border: "4px solid var(--cs-badge-default-bg-color)",
+            border: "3px solid var(--cd-badge-border-color)",
         }
     }],
     ["big", {
@@ -76,7 +56,7 @@ export const SIZE_CONFIGS = new Map([
             width: "14px",
             height: "14px",
             borderRadius: "50%",
-            border: "5px solid var(--cs-badge-default-bg-color)",
+            border: "4px solid var(--cd-badge-border-color)",
         }
     }],
 ]);

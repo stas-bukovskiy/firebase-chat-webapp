@@ -6,7 +6,6 @@ import {computed, onMounted, type PropType, reactive, ref} from "vue";
 import {ChatEntity, PrivateChatAggregate, UserProfileEntity} from "@/services/entities.ts";
 import {collection, doc, getDocs, limit, orderBy, query, setDoc, where} from "firebase/firestore";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
-import {CARD_BADGE_COLORS} from "@/utils/avatar_config.ts";
 import SearchPanelComponent from "@/components/SearchPanelComponent.vue";
 import ChatListItem from "@/components/ChatListItem.vue";
 import {useUserStore} from "@/stores/users.ts";
@@ -208,7 +207,7 @@ const handleEditGroup = async () => {
           <div class="mb-1" v-for="chat in searchResult">
             <ChatListItem class="mb-0" :chatAgg="chat"
                           :isCurrent="groupChatMembersSet.has(chat.otherUserProfile?.username)"
-                          @clickUserProfile="handleAddUserClick" :badgeBorderColors="CARD_BADGE_COLORS"/>
+                          @clickUserProfile="handleAddUserClick"/>
           </div>
         </n-scrollbar>
       </div>

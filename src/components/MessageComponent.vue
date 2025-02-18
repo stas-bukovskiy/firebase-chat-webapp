@@ -5,7 +5,6 @@ import {Checkmark24Filled, Delete24Regular, Pin24Regular, PinOff24Regular} from 
 import type {MessageEntity} from "@/services/entities.ts";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
 import {useUserStore} from "@/stores/users.ts";
-import {SUB_CARD_BADGE_COLORS} from "@/utils/avatar_config.ts";
 import AttachmentComponent from "@/components/AttachmentComponent.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
 import {togglePinnedMessage} from "@/services/PinnedMessageService.ts";
@@ -68,7 +67,7 @@ const handlePinToggleClick = async () => {
 
         <div v-if="!props.isStacked" class="message-sender"
              :style="fromCurrentUser ? {right: '30px'} : {left: '30px'}">
-          <UserAvatar :userProfile="userProfile" :isCurrent='false' :badgeBorderColors="SUB_CARD_BADGE_COLORS"/>
+          <UserAvatar :userProfile="userProfile" :isCurrent='false'/>
         </div>
       </div>
     </template>
@@ -106,7 +105,7 @@ const handlePinToggleClick = async () => {
 }
 
 .message:hover {
-  background-color: #2e2e2e;
+  background-color: var(--cs-current-item-bg-color);
 }
 
 .message-sender {

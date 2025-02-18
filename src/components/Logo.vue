@@ -4,9 +4,8 @@
 
 <template>
   <div class="d-flex align-items-center">
-    <!--TODO: add logo-->
-    <n-avatar :style="{backgroundColor: '#63e2b7'}" size="large"></n-avatar>
-    <h3 class="ms-3 mb-0">Chat App</h3>
+    <img src = "@/assets/logo.svg" alt="logo" width="36" height="36">
+    <h3 class="ms-2 mb-0">Firechat</h3>
   </div>
 </template>
 

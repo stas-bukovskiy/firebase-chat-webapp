@@ -10,12 +10,15 @@ const goToLogin = () => {
 
 <template>
   <div class="container d-flex flex-column justify-content-center align-items-center rounded-5 p-5">
+    <div class="d-flex align-items-center mb-3">
+      <img src = "@/assets/logo.svg" alt="logo" width="42" height="42">
+    </div>
     <h1 class="mb-2">Join us today!</h1>
     <h3 class="mb-3 text-muted">Create your account</h3>
     <RegisterSteps/>
     <div class="mt-4">
       Already have an account?
-      <n-button text @click="goToLogin" size="large" type="primary">
+      <n-button text @click="goToLogin" type="primary">
         Login here
       </n-button>
     </div>

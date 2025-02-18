@@ -2,14 +2,10 @@
 import {computed, type PropType} from "vue";
 import {generateAvatarColors, generateDisplayName, generateInitials} from "@/utils/avatars.ts";
 import type {UserProfileEntity} from "@/services/entities.ts";
-import {type AvatarBadgeBorderColors, DEFAULT_BADGE_COLORS, SIZE_CONFIGS} from "@/utils/avatar_config.ts";
+import {SIZE_CONFIGS} from "@/utils/avatar_config.ts";
 
 const props = defineProps({
   userProfile: Object as PropType<UserProfileEntity>,
-  badgeBorderColors: {
-    type: Object as PropType<AvatarBadgeBorderColors>,
-    default: DEFAULT_BADGE_COLORS,
-  },
   isCurrent: {
     type: Boolean,
     default: false
@@ -52,7 +48,6 @@ const badgeStyles = computed(() => {
   return {
     ...SIZE_CONFIGS.get(props.size).badge,
     backgroundColor: props.userProfile?.isOnline ? "var(--cs-badge-online-bg-color)" : "var(--cs-badge-offline-bg-color)",
-    borderColor: props.isCurrent ? props.badgeBorderColors.hoverColor : props.badgeBorderColors.color,
   };
 });
 

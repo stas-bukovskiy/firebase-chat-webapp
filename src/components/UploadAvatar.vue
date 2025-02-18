@@ -9,6 +9,11 @@ import {useNotification} from "naive-ui";
 import {storage} from "@/firebase";
 import {getFileExtension} from "@/utils/files.ts";
 
+const defaultColors = {
+  bgColor: "var(--cs-primary-color)",
+  textColor: "var(--cs-main-bg-color)"
+};
+
 const sizeConfigs = new Map([
   ["big", {
     width: "82px",
@@ -153,13 +158,14 @@ const handleAvatarRemoving = () => {
 }
 
 const containerStyles = computed(() => {
-  const colors = props.avatarKey ? generateAvatarColors(props.avatarKey) : {bgColor: "#63e2b7", textColor: "#000"};
-  return {
-    ...sizeConfigs.get(props.size),
-    backgroundColor: colors.bgColor,
-    color: colors.textColor,
-  };
-});
+      const colors = props.avatarKey ? generateAvatarColors(props.avatarKey) : defaultColors;
+      return {
+        ...sizeConfigs.get(props.size),
+        backgroundColor: colors.bgColor,
+        color: colors.textColor,
+      };
+    })
+;
 </script>
 
 <template>
@@ -183,7 +189,7 @@ const containerStyles = computed(() => {
         <template #trigger>
           <n-button strong circle type="primary" class="ms-2" @click="handleAvatarRemoving">
             <template #icon>
-              <n-icon>
+              <n-icon class="d-flex justify-content-center align-items-center">
                 <Delete24Filled/>
               </n-icon>
             </template>
@@ -195,7 +201,7 @@ const containerStyles = computed(() => {
 
     <div v-if="loading" class="avatar-overlay">
       <div style="">
-        <n-progress type="circle" :percentage="percentage" status="success" style="width: 75px">
+        <n-progress type="circle" :percentage="percentage" status="default" style="width: 75px">
           <n-button strong circle type="primary" @click="handleCancelUploading">
             <template #icon>
               <n-icon>
@@ -250,14 +256,18 @@ const containerStyles = computed(() => {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background-color: #63e2b7;
+  background-color: var(--cs-primary-color);
   color: #000;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 .upload-button:hover {
-  background-color: #7fe7c4;
+  background-color: var(--cs-primary-color-hover);
+}
+
+.upload-button:active {
+  background-color: var(--cs-primary-color-pressed);
 }
 
 .hidden {

@@ -7,7 +7,6 @@ import {useChatStore} from "@/stores/chats.ts";
 import {collection, query, where, orderBy, limit, getDocs} from "firebase/firestore";
 import {db} from "@/firebase";
 import {generateKeywords, generateUserKeywords} from "@/utils/keywords.ts";
-import {CARD_BADGE_COLORS} from "@/utils/avatar_config.ts";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
 import {useRouter} from "vue-router";
 import {useNotification} from "naive-ui";
@@ -97,12 +96,12 @@ const handleNewChatClick = (username: string) => {
       <n-divider v-if="myChatsResult.length" class="my-1">My chats</n-divider>
       <div class="mb-1" v-for="chat in myChatsResult">
         <ChatListItem class="mb-0" :chatAgg="chat" :isCurrent="false"
-                      @click="handleMyChatClick" :badgeBorderColors="CARD_BADGE_COLORS"/>
+                      @click="handleMyChatClick"/>
       </div>
       <n-divider v-if="usersResult.length" class="my-1">All Users</n-divider>
       <div class="mb-1" v-for="chat in usersResult">
         <ChatListItem class="mb-0" :chatAgg="chat" :isCurrent="false"
-                      @clickUserProfile="handleNewChatClick" :badgeBorderColors="CARD_BADGE_COLORS"/>
+                      @clickUserProfile="handleNewChatClick"/>
       </div>
     </n-scrollbar>
     <div v-else class="text-muted text-center pt-4">
