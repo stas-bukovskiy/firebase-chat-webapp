@@ -7,6 +7,7 @@
     --cs-main-bg-color: #191627;
     --cs-card-bg-color: #221E34;
     --cs-sub-card-bg-color: #2A2541;
+    --cs-sub-card-bg-color-hover: #2F2A4A;
 
     --cs-current-item-bg-color: rgba(253, 161, 13, 0.25);
 
@@ -19,6 +20,6 @@
 
     --cs-badge-default-bg-color: var(--cs-main-bg-color);
     --cs-badge-current-bg-color: var(--cs-current-item-bg-color);
-    --cs-scrollbar-color: #4C4C4C;
+    --cs-scrollbar-color: #3D3E3D;
     --cs-scrollbar-hover-color: #636363;
 }

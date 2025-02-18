@@ -1,6 +1,6 @@
 
 const intersectDirective = {
-    created: (el, binding) => intersectDirectiveFunc(el, binding),
+    mounted: (el, binding) => intersectDirectiveFunc(el, binding),
     updated: (el, binding) => intersectDirectiveFunc(el, binding),
 };
 

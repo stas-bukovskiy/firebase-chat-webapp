@@ -105,7 +105,7 @@ const handlePinToggleClick = async () => {
 }
 
 .message:hover {
-  background-color: var(--cs-current-item-bg-color);
+  background-color: var(--cs-sub-card-bg-color-hover);
 }
 
 .message-sender {

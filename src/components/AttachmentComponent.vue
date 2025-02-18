@@ -131,12 +131,12 @@ const fileName = computed(() => {
 
 <template>
   <div class="file-card d-flex justify-content-center align-items-center"
-       :style="!isImage ? {border: '1px solid'} : {}"
+       :style="!isImage ? {border: '2px solid'} : {}"
        @mouseover="hover = isEditable" @mouseleave="hover = false">
 
     <!-- Progress bar -->
     <div v-if="loading" class="file-card-overlay" style="opacity: 100%">
-      <n-progress type="circle" :percentage="percentage" status="success" style="width: 50px">
+      <n-progress type="circle" :percentage="percentage" style="width: 50px">
         <n-button text @click="handleCancelUploading">
           <n-icon size="1rem">
             <Dismiss24Filled/>
@@ -200,7 +200,7 @@ const fileName = computed(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(41, 41, 41, 0.8);
+  background-color: rgba(34, 30, 52, 0.6);
   border-radius: 8px;
   opacity: 0;
   transition: opacity 0.3s;

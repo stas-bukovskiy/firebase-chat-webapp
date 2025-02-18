@@ -124,7 +124,7 @@ const handleAttachmentUrl = (url: string) => {
     <div class="d-flex align-items-start">
       <n-button tertiary circle size="large" @click="chooseFile">
         <template #icon>
-          <n-icon size="1.4rem">
+          <n-icon size="1.4rem" class="d-flex align-items-center justify-content-center">
             <Attach24Filled/>
           </n-icon>
         </template>

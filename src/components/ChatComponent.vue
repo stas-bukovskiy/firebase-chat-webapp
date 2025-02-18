@@ -14,9 +14,7 @@ import {
   startAt,
   where,
   or,
-  updateDoc,
   and,
-  arrayUnion,
 } from "firebase/firestore";
 import {db} from "@/firebase";
 import {notifyError} from "@/utils/errors.ts";
@@ -25,6 +23,7 @@ import {nowToUTCTimestamp} from "@/utils/datetime.ts";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
 import SystemMessageComponent from "@/components/SystemMessageComponent.vue";
 import type {QueryFilterConstraint} from "@firebase/firestore";
+import {updateMessageReadStatus} from "@/services/MessageService.ts";
 
 const PAGE_SIZE = 24;
 
@@ -299,7 +298,7 @@ const isMessageRead = (message: MessageEntity) => {
   if (!message)
     return false;
 
-  return (message.isRead && props.chatAgg?.chat.isGroup) || message.readBy.includes(currentUserStore.username);
+  return (message.isRead && !props.chatAgg?.chat.isGroup) || message.readBy.includes(currentUserStore.username);
 }
 
 const isNewMessage = (index: number) => {
@@ -341,7 +340,7 @@ function scrollToMessageById(messageId: number): void {
   }
 }
 
-const updateScrolledMessageStatuses = () => {
+const updateScrolledMessageStatuses = async () => {
   if (!chatContainer.value) return;
 
   const containerElement = chatContainer.value;
@@ -352,7 +351,7 @@ const updateScrolledMessageStatuses = () => {
     const message = messages.value.find((msg) => msg.id === messageId);
 
     if (message && isMessageVisible(messageElement, containerElement)) {
-      updateReadStatus(message);
+      await updateReadStatus(message);
     }
   });
 }
@@ -369,14 +368,19 @@ function isMessageVisible(messageElement: HTMLElement, containerElement: HTMLEle
   );
 }
 
+const readStatusUpdating = new Set<string>();
+
 // Function to update read status of messages
-function updateReadStatus(message: MessageEntity): void {
+async function updateReadStatus(message: MessageEntity) {
+  if (readStatusUpdating.has(message.id)) {
+    return;
+  }
+
+  readStatusUpdating.add(message.id);
+
   if (message && !isMessageRead(message) && message.fromUser?.id !== currentUserStore.currentUser.username) {
+    await updateMessageReadStatus(props.chatAgg?.chat.id, message.id, currentUserStore.username, props.chatAgg?.chat.isGroup)
     console.log('Updating read status for message', message.text);
-    // await updateDoc(doc(db, 'chats', props.chatAgg?.chat?.id, 'messages', messageId), {
-    //   isRead: true,
-    //   readBy: arrayUnion(currentUserStore.username),
-    // });
   }
 }
 
