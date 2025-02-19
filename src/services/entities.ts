@@ -184,3 +184,58 @@ export class PinnedMessageEntity extends Entity {
         }
     }
 }
+
+
+export class MessageFileEntity extends Entity {
+    message: DocumentReference;
+    url: string;
+    isMedia: boolean;
+
+    constructor(data: MessageFileEntity) {
+        super(data);
+        this.message = data.message;
+        this.url = data.url;
+        this.isMedia = data.isMedia;
+    }
+
+    protected static transformFromFirestore(data: FirebaseFirestore.DocumentData): MessageFileEntity {
+        return {
+            message: data.message,
+            url: data.url,
+            isMedia: Boolean(data.isMedia),
+        }
+    }
+
+    protected static transformToFirestore(data: MessageFileEntity): FirebaseFirestore.DocumentData {
+        return {
+            message: data.message,
+            url: data.url,
+            isMedia: data.isMedia,
+        }
+    }
+}
+
+export class LinkMessageEntity extends Entity {
+    message: DocumentReference;
+    createdAt: number;
+
+    constructor(data: PinnedMessageEntity) {
+        super(data);
+        this.message = data.message;
+        this.createdAt = data.createdAt;
+    }
+
+    protected static transformFromFirestore(data: FirebaseFirestore.DocumentData): PinnedMessageEntity {
+        return {
+            message: data.message,
+            createdAt: data.createdAt,
+        }
+    }
+
+    protected static transformToFirestore(data: PinnedMessageEntity): FirebaseFirestore.DocumentData {
+        return {
+            message: data.message,
+            createdAt: data.createdAt,
+        }
+    }
+}

@@ -4,8 +4,6 @@ import type {ChatAggregate} from "@/services/entities.ts";
 import {computed, type PropType, ref} from "vue";
 import {generateDisplayName} from "@/utils/avatars.ts";
 import {
-  Star24Filled,
-  Star28Regular,
   TextBulletListSquareEdit20Regular,
   Delete24Regular,
   People20Regular,
@@ -57,12 +55,6 @@ const members = computed(() => {
   return membersIds.map(memberId => usersStore.fetchByUsername(memberId));
 })
 
-const handleStarClick = () => {
-  // TODO
-  console.log("Star clicked");
-}
-
-
 const router = useRouter();
 
 const handlePinnedMessagesClick = () => {
@@ -78,7 +70,7 @@ const handleFilesClick = () => {
 }
 
 const handleLinksClick = () => {
-  emit("navigateTo", Pages.LINKS);
+  router.push({name: 'chat-links', params: {id: props.chatAgg.chat.id}});
 }
 
 const showEditGroupModal = ref(false);
@@ -159,15 +151,6 @@ const handleLeaveGroupClick = () => {
         <div class="col-9 m-0 p-0 d-flex flex-column justify-content-center chat-info-text">
           <h4 class="mb-0">{{ displayName }}</h4>
           <h5 v-if="!isGroup" class="mb-0 text-muted">@{{ props.chatAgg?.otherUserProfile?.username }}</h5>
-        </div>
-
-        <div class="col-3 m-0 p-0 d-flex justify-content-end align-items-center">
-          <n-button text style="font-size: 32px" @click="handleStarClick">
-            <n-icon>
-              <Star24Filled v-if="chatAgg.userChat.isStared"/>
-              <Star28Regular v-else/>
-            </n-icon>
-          </n-button>
         </div>
       </div>
     </div>

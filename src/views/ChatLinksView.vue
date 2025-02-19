@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed, inject, nextTick, onMounted, onUnmounted, reactive, ref, watch} from 'vue';
 import MessageComponent from "@/components/MessageComponent.vue";
-import {type ChatAggregate, MessageEntity, PinnedMessageEntity} from "@/services/entities.ts";
+import {type ChatAggregate, LinkMessageEntity, MessageEntity} from "@/services/entities.ts";
 import {
   collection,
   limit,
@@ -35,9 +35,9 @@ interface MessageAlias {
   createdAt: number;
 }
 
-const pinnedMessagesMap = reactive(new Map<string, MessageAlias>());
-const pinnedMessages = computed(() => {
-  return Array.from(pinnedMessagesMap.values())
+const linksMessagesMap = reactive(new Map<string, MessageAlias>());
+const linksMessages = computed(() => {
+  return Array.from(linksMessagesMap.values())
       .sort((a, b) => a.createdAt - b.createdAt)
       .map((message) => message.message);
 });
@@ -59,14 +59,14 @@ watch(() => chatAgg, async () => {
 const handleInitialFetch = async () => {
   reset();
 
-  await fetchPinnedMessages();
+  await fetchLinksMessages();
   isInitialLoading.value = false;
 };
 
 const unsubscribes = new Array<Unsubsribe>();
 
 const reset = () => {
-  pinnedMessagesMap.clear();
+  linksMessagesMap.clear();
   isLoadingMoreMessages.value = false;
   isInitialLoading.value = true;
 
@@ -76,30 +76,30 @@ const reset = () => {
   unsubscribes.length = 0;
 };
 
-const fetchPinnedMessages = async () => {
-  const messagesRef = collection(db, 'chats', chatAgg.value?.chat?.id, 'pinnedMessage').withConverter(PinnedMessageEntity.converter);
+const fetchLinksMessages = async () => {
+  const messagesRef = collection(db, 'chats', chatAgg.value?.chat?.id, 'links').withConverter(LinkMessageEntity.converter);
 
   const queryConstraints = [
     orderBy('createdAt', 'desc'),
     limit(INITIAL_PAGE_SIZE)
   ];
 
-  if (pinnedMessages.value.length) {
-    queryConstraints.push(startAt(pinnedMessages.value[0].createdAt));
+  if (linksMessages.value.length) {
+    queryConstraints.push(startAt(linksMessages.value[0].createdAt));
   }
   const q = query(messagesRef, ...queryConstraints);
 
-  let isInitialFetch = !pinnedMessagesMap.size;
+  let isInitialFetch = !linksMessagesMap.size;
   const unsubscribe = onSnapshot(q, (snapshot) => {
     snapshot.docChanges().forEach(async (change) => {
       if (change.type === "added") {
-        const newPinnedMessage = change.doc.data() as PinnedMessageEntity;
+        const newPinnedMessage = change.doc.data() as LinkMessageEntity;
         const message = await getDoc(newPinnedMessage.message.withConverter(MessageEntity.converter));
         if (!message.exists()) {
           return;
         }
         const messageData = message.data() as MessageEntity;
-        pinnedMessagesMap.set(message.id, {
+        linksMessagesMap.set(message.id, {
           message: messageData,
           createdAt: newPinnedMessage.createdAt
         })
@@ -109,7 +109,7 @@ const fetchPinnedMessages = async () => {
           chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
         }
       } else if (change.type === "removed") {
-        pinnedMessagesMap.delete(change.doc.id);
+        linksMessagesMap.delete(change.doc.id);
       }
     });
     unsubscribes.push(unsubscribe);
@@ -124,9 +124,9 @@ const fetchPinnedMessages = async () => {
 const onScroll = async () => {
   if (!chatContainer.value) return
 
-  if (chatContainer.value.scrollTop === 0 && pinnedMessages.value.length
+  if (chatContainer.value.scrollTop === 0 && linksMessages.value.length
       && !isLoadingMoreMessages.value && !hasNoMoreMessages.value) {
-    await fetchPinnedMessages();
+    await fetchLinksMessages();
   }
 };
 
@@ -163,12 +163,12 @@ const handleBackButton = () => {
     <div class="initial-loading-spinner" v-if="isInitialLoading">
       <n-spin :show="isInitialLoading"/>
     </div>
-    <div class="initial-loading-spinner" v-else-if="!pinnedMessages.length">
+    <div class="initial-loading-spinner" v-else-if="!linksMessages.length">
       <p class="badge-default">No pinned messages yet</p>
     </div>
 
     <div style="margin-top: auto;">
-      <div v-if="!isInitialLoading && pinnedMessagesMap.size" v-for="message in pinnedMessages"
+      <div v-if="!isInitialLoading && linksMessagesMap.size" v-for="message in linksMessages"
            :key="message.id"
            class="message"
            :data-id="message.id">

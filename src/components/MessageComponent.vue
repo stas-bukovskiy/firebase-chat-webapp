@@ -8,6 +8,7 @@ import {useUserStore} from "@/stores/users.ts";
 import AttachmentComponent from "@/components/AttachmentComponent.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
 import {togglePinnedMessage} from "@/services/PinnedMessageService.ts";
+import {reformatLinks} from "@/utils/links.ts";
 
 const props = defineProps({
   chatId: String,
@@ -49,7 +50,7 @@ const handlePinToggleClick = async () => {
                                    :fileUrl="url"/>
             </div>
 
-            <span>{{ props.message.text }}</span>
+            <span class="message-text" v-html="reformatLinks(props.message.text)"></span>
 
             <div v-if="fromCurrentUser" :class="props.isStacked ? 'mt-2' : 'message-status-absolute'">
               <div>
@@ -89,6 +90,15 @@ const handlePinToggleClick = async () => {
 <style scoped>
 .message-container {
   position: relative;
+  width: 100%;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-all;
+  white-space: normal;
+}
+
+.message-text {
+  max-width: 95%;
 }
 
 .message-time {

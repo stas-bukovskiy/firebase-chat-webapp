@@ -2,8 +2,10 @@
 import {ArrowLeft20Regular} from "@vicons/fluent";
 import {onMounted, ref} from "vue";
 import AttachmentComponent from "@/components/AttachmentComponent.vue";
-import type {ChatAggregate} from "@/services/entities.ts";
+import {type ChatAggregate, MessageFileEntity} from "@/services/entities.ts";
 import {Pages} from "@/services/enums.ts";
+import {collection, getDocs, limit, orderBy, query, where} from "firebase/firestore";
+import {db} from "@/firebase";
 
 const PAGE_SIZE = 32;
 
@@ -14,7 +16,7 @@ const props = defineProps<{
 
 const emit = defineEmits(["back"]);
 
-const mediaFilesUrl = ref<string[]>([]);
+const mediaFiles = ref<MessageFileEntity[]>([]);
 
 const filesContainer = ref<HTMLElement>();
 const isInitialLoading = ref(true);
@@ -37,37 +39,34 @@ const onScroll = async () => {
 
 const loadMoreFiles = async () => {
   if (hasNoMoreFiles.value || isLoading.value) return
+  isLoading.value = !isInitialLoading.value;
 
+  const fileQueryConstraints = [
+    where("isMedia", "==", props.pageType === Pages.MEDIA),
+    orderBy("createdAt", "desc"),
+    limit(PAGE_SIZE)
+  ]
+  if (mediaFiles.value.length > 0) {
+    fileQueryConstraints.push(where("createdAt", "<", mediaFiles.value[mediaFiles.value.length - 1].createdAt))
+  }
 
-  // TODO: implement the logic to fetch more files from the server
-  isLoading.value = true;
-  await new Promise(resolve => setTimeout(resolve, 2000));
-  isLoading.value = false;
-  mediaFilesUrl.value.push(
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/attachments%2FCIvmkEzw61INMayq51Zi%2F00ceujtpc5%2FScreenshot%20from%202024-07-21%2012-13-20.png?alt=media&token=4ad0aa94-4718-40a2-972a-53fa810e552c',
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/attachments%2FCIvmkEzw61INMayq51Zi%2F00ceujtpc5%2FScreenshot%20from%202024-07-21%2012-13-20.png?alt=media&token=4ad0aa94-4718-40a2-972a-53fa810e552c',
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/attachments%2FCIvmkEzw61INMayq51Zi%2F00ceujtpc5%2FScreenshot%20from%202024-07-21%2012-13-20.png?alt=media&token=4ad0aa94-4718-40a2-972a-53fa810e552c',
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/attachments%2FCIvmkEzw61INMayq51Zi%2F00ceujtpc5%2FScreenshot%20from%202024-07-21%2012-13-20.png?alt=media&token=4ad0aa94-4718-40a2-972a-53fa810e552c',
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/attachments%2FCIvmkEzw61INMayq51Zi%2F00ceujtpc5%2FScreenshot%20from%202024-07-21%2012-13-20.png?alt=media&token=4ad0aa94-4718-40a2-972a-53fa810e552c',
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/attachments%2FCIvmkEzw61INMayq51Zi%2F00ceujtpc5%2FScreenshot%20from%202024-07-21%2012-13-20.png?alt=media&token=4ad0aa94-4718-40a2-972a-53fa810e552c',
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/attachments%2FCIvmkEzw61INMayq51Zi%2F00ceujtpc5%2FScreenshot%20from%202024-07-21%2012-13-20.png?alt=media&token=4ad0aa94-4718-40a2-972a-53fa810e552c',
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/attachments%2FCIvmkEzw61INMayq51Zi%2F00ceujtpc5%2FScreenshot%20from%202024-07-21%2012-13-20.png?alt=media&token=4ad0aa94-4718-40a2-972a-53fa810e552c',
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/attachments%2FCIvmkEzw61INMayq51Zi%2F00ceujtpc5%2FScreenshot%20from%202024-07-21%2012-13-20.png?alt=media&token=4ad0aa94-4718-40a2-972a-53fa810e552c',
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/attachments%2FCIvmkEzw61INMayq51Zi%2F00ceujtpc5%2FScreenshot%20from%202024-07-21%2012-13-20.png?alt=media&token=4ad0aa94-4718-40a2-972a-53fa810e552c',
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/attachments%2FCIvmkEzw61INMayq51Zi%2F00ceujtpc5%2FScreenshot%20from%202024-07-21%2012-13-20.png?alt=media&token=4ad0aa94-4718-40a2-972a-53fa810e552c',
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/attachments%2FCIvmkEzw61INMayq51Zi%2F00ceujtpc5%2FScreenshot%20from%202024-07-21%2012-13-20.png?alt=media&token=4ad0aa94-4718-40a2-972a-53fa810e552c',
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/attachments%2FCIvmkEzw61INMayq51Zi%2Fkuoix9qpbw%2FScreenshot%20from%202024-07-23%2014-57-49.png?alt=media&token=79c8aa0e-cdc7-4a55-98a0-8122eafaff5e',
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/attachments%2FCIvmkEzw61INMayq51Zi%2Fkuoix9qpbw%2FScreenshot%20from%202024-07-23%2014-57-49.png?alt=media&token=79c8aa0e-cdc7-4a55-98a0-8122eafaff5e',
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/attachments%2FCIvmkEzw61INMayq51Zi%2Fkuoix9qpbw%2FScreenshot%20from%202024-07-23%2014-57-49.png?alt=media&token=79c8aa0e-cdc7-4a55-98a0-8122eafaff5e',
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/attachments%2FCIvmkEzw61INMayq51Zi%2Fkuoix9qpbw%2FScreenshot%20from%202024-07-23%2014-57-49.png?alt=media&token=79c8aa0e-cdc7-4a55-98a0-8122eafaff5e',
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/avatars%2Fmail%40mail.com%2Favatar.jpg?alt=media&token=e239af4e-056d-46dc-a8be-f96bc7e23cd7',
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/avatars%2Fmail%40mail.com%2Favatar.jpg?alt=media&token=e239af4e-056d-46dc-a8be-f96bc7e23cd7',
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/avatars%2Fmail%40mail.com%2Favatar.jpg?alt=media&token=e239af4e-056d-46dc-a8be-f96bc7e23cd7',
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/avatars%2Fmail%40mail.com%2Favatar.jpg?alt=media&token=e239af4e-056d-46dc-a8be-f96bc7e23cd7',
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/avatars%2Fmail%40mail.com%2Favatar.jpg?alt=media&token=e239af4e-056d-46dc-a8be-f96bc7e23cd7',
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/avatars%2Fmail%40mail.com%2Favatar.jpg?alt=media&token=e239af4e-056d-46dc-a8be-f96bc7e23cd7',
-      'https://firebasestorage.googleapis.com/v0/b/chat-webapp-6634b.firebasestorage.app/o/avatars%2Fmail%40mail.com%2Favatar.jpg?alt=media&token=e239af4e-056d-46dc-a8be-f96bc7e23cd7'
-  )
+  const filesRef = collection(db, `chats/${props.chatAgg?.chat?.id}/files`).withConverter(MessageFileEntity.converter)
+  const filesQuery = query(filesRef, ...fileQueryConstraints);
+  getDocs(filesQuery).then((filesSnapshot) => {
+    if (filesSnapshot.size === 0) {
+      console.log("No more files found");
+      hasNoMoreFiles.value = true;
+      return
+    }
+
+    const files = filesSnapshot.docs.map(doc => doc.data());
+    mediaFiles.value.push(...files);
+    hasNoMoreFiles.value = files.length < PAGE_SIZE;
+  }).catch((error) => {
+    console.error("Error loading files", error);
+  }).finally(() => {
+    isLoading.value = false;
+  });
 };
 
 const isMedia = props.pageType === Pages.MEDIA;
@@ -82,16 +81,19 @@ const isMedia = props.pageType === Pages.MEDIA;
           <ArrowLeft20Regular/>
         </n-icon>
       </n-button>
-      <h4 class="mb-0">{{ isMedia ? 'Media' : 'Files'}}</h4>
+      <h4 class="mb-0">{{ isMedia ? 'Media' : 'Files' }}</h4>
     </div>
 
     <div class="attachments-container ps-4 me-1 pe-1 py-3" ref="filesContainer" @scroll="onScroll">
       <div class="initial-loading-spinner" v-if="isInitialLoading">
-        <n-spin :show="isInitialLoading"/>
+        <n-spin/>
+      </div>
+      <div class="initial-loading-spinner" v-else-if="hasNoMoreFiles && mediaFiles.length===0">
+        <p class="badge-default">No {{ isMedia ? 'media' : 'files' }} yet</p>
       </div>
 
-      <AttachmentComponent v-for="(url, index) in mediaFilesUrl" :key="index"
-                           :fileUrl="url" class="attachment-item"/>
+      <AttachmentComponent v-for="mediaFile in mediaFiles" :key="mediaFile.id"
+                           :fileUrl="mediaFile.url" class="attachment-item"/>
 
       <div v-if="isLoading && !isInitialLoading" class="loading-spinner">
         <n-spin/>

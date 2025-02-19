@@ -10,6 +10,7 @@ import ChatView from "@/views/ChatView.vue";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
 import ChatLayout from "@/layouts/ChatLayout.vue";
 import ChatPinnedMessagesView from "@/views/ChatPinnedMessagesView.vue";
+import ChatLinksView from "@/views/ChatLinksView.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -59,6 +60,11 @@ const router = createRouter({
                             path: "pinned-messages",
                             name: "chat-pinned-messages",
                             component: ChatPinnedMessagesView
+                        },
+                        {
+                            path: "links",
+                            name: "chat-links",
+                            component: ChatLinksView
                         }
                     ]
                 }

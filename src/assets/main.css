@@ -40,6 +40,14 @@ h1, h2, h3, h4, h5, h6 {
     border-right: 2px solid var(--cs-sub-card-bg-color);
 }
 
+.badge-default {
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.2rem 0.6rem;
+    border-radius: 0.6rem;
+    background-color: var(--cs-sub-card-bg-color-hover);
+}
+
 .n-base-icon {
     display: flex;
     justify-content: center;

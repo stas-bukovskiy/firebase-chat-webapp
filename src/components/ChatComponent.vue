@@ -251,10 +251,8 @@ const loadNewMessages = async () => {
     return;
   }
 
-  isLoadingNewMessages.value = true;
-  await new Promise(resolve => setTimeout(resolve, 2000));
-
-  // const previousScrollHeight = chatContainer.value.scrollHeight;
+  isLoadingNewMessages.value = true
+  isInitialLoading.value = messages.value.length === 0;
 
   const lastMessageCreatedAt = messages.value.length ?
       messages.value[messages.value.length - 1].createdAt + 1 :
@@ -346,14 +344,14 @@ const updateScrolledMessageStatuses = async () => {
   const containerElement = chatContainer.value;
   const messageElements = containerElement.querySelectorAll<HTMLElement>('.message');
 
-  messageElements.forEach(async (messageElement) => {
+  for (const messageElement of messageElements) {
     const messageId = messageElement.dataset.id || ''
     const message = messages.value.find((msg) => msg.id === messageId);
 
     if (message && isMessageVisible(messageElement, containerElement)) {
       await updateReadStatus(message);
     }
-  });
+  }
 }
 
 
@@ -394,6 +392,9 @@ async function updateReadStatus(message: MessageEntity) {
     <div class="initial-loading-spinner" v-if="isInitialLoading">
       <n-spin :show="isInitialLoading"/>
     </div>
+    <div class="initial-loading-spinner" v-else-if="hasNoMoreNewMessages && hasNoMoreOldMessages && !messages.length">
+      <p class="badge-default">Say hi to start chatting</p>
+    </div>
 
     <div style="margin-top: auto;">
       <div v-if="!isInitialLoading && messages" v-for="(message, index) in messages" :key="message.id" class="message"
@@ -410,7 +411,7 @@ async function updateReadStatus(message: MessageEntity) {
       </div>
     </div>
 
-    <div v-if="isLoadingNewMessages" class="loading-spinner">
+    <div v-if="isLoadingNewMessages && !isInitialLoading" class="loading-spinner">
       <n-spin/>
     </div>
   </div>
