@@ -47,7 +47,7 @@ const submitMessage = async () => {
     addDoc(collection(db, 'chats', props.chatId, 'messages'), {
       text: messageText,
       fromUser: doc(db, 'users', currentUserStore.currentUser.username),
-      attachmentsUrl: attachmentsUrl.value,
+      attachmentsUrl: attachmentsUrl.value.map((urlObj) => urlObj.url),
       createdAt: nowToUTCTimestamp(),
     }).catch((e) => {
       notifyError(notification, e);
@@ -104,12 +104,13 @@ const handleFileUploading = (event: Event) => {
   target.files = null;
 };
 
-const removeAttachment = (fileKey: number) => {
+const removeAttachment = (fileKey: string) => {
   attachments.value = attachments.value.filter((file) => file.key !== fileKey);
+  attachmentsUrl.value = attachmentsUrl.value.filter((attachment) => attachment.key !== fileKey);
 };
 
-const handleAttachmentUrl = (url: string) => {
-  attachmentsUrl.value.push(url);
+const handleAttachmentUrl = (key: string, url: string) => {
+  attachmentsUrl.value.push({key, url});
 };
 
 </script>

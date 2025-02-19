@@ -16,6 +16,7 @@ import {Delete24Filled, Dismiss24Filled, Document24Regular} from "@vicons/fluent
 import {ViewFilled, Download} from "@vicons/carbon";
 
 const props = defineProps({
+  fileKey: String,
   isEditable: {
     type: Boolean,
     required: false,
@@ -65,7 +66,7 @@ const uploadFile = (file: File) => {
         notifyError(notification, error)
       }, async () => {
         fileUrl.value = await getDownloadURL(uploadTask.value.snapshot.ref);
-        emit("addAttachmentUrl", fileUrl.value);
+        emit("addAttachmentUrl", props.fileKey, fileUrl.value);
 
         reset();
       }

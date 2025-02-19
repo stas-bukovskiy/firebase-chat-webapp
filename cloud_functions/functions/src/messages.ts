@@ -224,7 +224,8 @@ const saveAttachmentFiles = async (chatId: string, messageId: string, attachment
         await db.collection(`chats/${chatId}/files`).add({
             message: db.doc(`chats/${chatId}/messages/${messageId}`),
             url: attachmentUrl,
-            isMedia: isMediaFile(attachmentUrl)
+            isMedia: isMediaFile(attachmentUrl),
+            createdAt: Math.floor(Date.now())
         })
     }
 }
@@ -255,6 +256,7 @@ const saveMessageLinks = async (chatId: string, messageId: string, text: string)
         await db.collection(`chats/${chatId}/links`).add({
             message: db.doc(`chats/${chatId}/messages/${messageId}`),
             url: link,
+            createdAt: Math.floor(Date.now())
         })
     }
 }

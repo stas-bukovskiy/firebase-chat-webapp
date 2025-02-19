@@ -60,10 +60,14 @@ const myChatsResult = computed(() => {
   }
 
   return chatStore.getChats.filter(chatAgg => {
-    if (chatAgg.chat.isGroup) {
-      return generateKeywords(chatAgg.chat.groupName).includes(search.value);
+    if (!chatAgg) {
+      return false;
     }
-    return generateUserKeywords(chatAgg.otherUserProfile).includes(search.value);
+
+    if (chatAgg.chat.isGroup) {
+      return generateKeywords(chatAgg.chat.groupName)?.includes(search.value);
+    }
+    return generateUserKeywords(chatAgg.otherUserProfile)?.includes(search.value);
   }).slice(0, RESULT_LIMIT);
 })
 
