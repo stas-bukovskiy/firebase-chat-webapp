@@ -97,11 +97,8 @@ const handlePinToggleClick = async () => {
   white-space: normal;
 }
 
-.message-text {
-  max-width: 95%;
-}
-
 .message-time {
+  min-width: 60px;
   font-size: 0.9rem;
   padding: 0.5rem 0.6rem 0 0;
 }
