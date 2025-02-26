@@ -11,6 +11,7 @@ import {useCurrentUserStore} from "@/stores/current-user.ts";
 import {useRouter} from "vue-router";
 import {useNotification} from "naive-ui";
 import {notifyError} from "@/utils/errors.ts";
+import {CloseOutlined} from "@vicons/material";
 
 const RESULT_LIMIT = 10;
 
@@ -50,13 +51,15 @@ const searchUsers = async (value: string) => {
       .map(doc => {
         return new PrivateChatAggregate({isGroup: false}, doc.data(), null);
       })
-  
+
   usersResult.splice(0, usersResult.length, ...result)
 }
 
 const myChatsResult = computed(() => {
   if (search.value.length < 3) {
-    return []
+    return chatStore.getChats.sort((a, b) => {
+      return b.chat.updatedAt - a.chat.updatedAt;
+    }).slice(0, RESULT_LIMIT);
   }
 
   return chatStore.getChats.filter(chatAgg => {
@@ -98,19 +101,18 @@ const handleNewChatClick = (username: string) => {
 
     <n-scrollbar v-if="myChatsResult.length || usersResult.length" trigger="none" class="mt-3" style="max-height: 46vh">
       <n-divider v-if="myChatsResult.length" class="my-1">My chats</n-divider>
-      <div class="mb-1" v-for="chat in myChatsResult">
-        <ChatListItem class="mb-0" :chatAgg="chat" :isCurrent="false"
-                      @click="handleMyChatClick"/>
-      </div>
-      <n-divider v-if="usersResult.length" class="my-1">All Users</n-divider>
-      <div class="mb-1" v-for="chat in usersResult">
-        <ChatListItem class="mb-0" :chatAgg="chat" :isCurrent="false"
-                      @clickUserProfile="handleNewChatClick"/>
-      </div>
+      <transition-group name="fade">
+        <div class="mb-1" v-for="chat in myChatsResult" :key="chat.chat.id">
+          <ChatListItem class="mb-0" :chatAgg="chat" :isCurrent="false"
+                        @click="handleMyChatClick"/>
+        </div>
+        <n-divider v-if="usersResult.length" class="my-1">All Users</n-divider>
+        <div class="mb-1" v-for="chat in usersResult" :key="chat.otherUserProfile.id">
+          <ChatListItem class="mb-0" :chatAgg="chat" :isCurrent="false"
+                        @clickUserProfile="handleNewChatClick"/>
+        </div>
+      </transition-group>
     </n-scrollbar>
-    <div v-else class="text-muted text-center pt-4">
-      <i><h6>Who seeks shall find...</h6></i>
-    </div>
   </n-card>
 </template>
 
@@ -123,5 +125,20 @@ const handleNewChatClick = (username: string) => {
   border-radius: 16px;
   max-height: 60vh;
   transition: max-height 3s ease-in-out;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease-in-out;
 }
 </style>

@@ -10,9 +10,6 @@ import type {Unsubscribe} from "@firebase/firestore";
 import {reactive} from "vue";
 
 export const useChatStore = defineStore("chats", {
-    setup: () => {
-
-    },
     state: () => ({
         userChats: reactive([] as ChatAggregate[]),
         chatsUnsubscribe: new Map<string, Unsubscribe>(),
@@ -103,7 +100,6 @@ export const useChatStore = defineStore("chats", {
             const otherUser = usersStore.fetchByUsername(otherUserId);
 
             const privateChat = new PrivateChatAggregate(chat, otherUser, userChat);
-            // TODO: add sorting
             this.userChats.push(privateChat);
         },
         handleModifiedChat(chat: ChatEntity) {
@@ -161,6 +157,7 @@ export const useChatStore = defineStore("chats", {
                 chat: chatRef,
                 isStarred: false,
                 unreadCount: 0,
+                updatedAt: nowToUTCTimestamp(),
             });
 
             return chatRef.id;
@@ -181,12 +178,15 @@ export const useChatStore = defineStore("chats", {
             await setDoc(userChatDocRef, {
                 chat: chatDocRef,
                 unreadCount: 0,
-                  isStarred: false,
+                isStarred: false,
+                updatedAt: nowToUTCTimestamp(),
             });
         }
     },
     getters: {
-        getChats: (state) => state.userChats,
+        getChats: (state) => state.userChats.sort((a, b) => {
+            return b.userChat?.updatedAt - a.userChat?.updatedAt
+        }),
         getChatByUserChatId: (state) => {
             return (userChatId: string) => {
                 return state.userChats.find(chat => chat.userChat.id === userChatId);

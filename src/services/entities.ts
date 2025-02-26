@@ -9,6 +9,7 @@ export class UserChatEntity extends Entity {
     unreadCount: number;
     isStarred: boolean;
     lastReadMessageTimestamp: number;
+    updatedAt: number;
 
     protected static transformFromFirestore(data: FirebaseFirestore.DocumentData): ChatEntity {
         return {
@@ -16,6 +17,7 @@ export class UserChatEntity extends Entity {
             unreadCount: Number(data.unreadCount) || 0,
             isStarred: Boolean(data.isStarred) || false,
             lastReadMessageTimestamp: Number(data.lastReadMessageTimestamp) || 0,
+            updatedAt: Number(data.updatedAt) || 0,
         }
     }
 }

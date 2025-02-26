@@ -43,6 +43,11 @@ export const onMessageCreated = onDocumentCreatedWithAuthContext("chats/{chatId}
         const chat = await getChatById(chatId);
         if (!chat) return;
 
+        // update timestamp of the userChat entity
+        await db.doc(`userChats/${senderUsername}/chats/${chatId}`).update({
+            updatedAt: Math.floor(Date.now())
+        })
+
         const members = chat.members.filter(member => member.id !== senderUsername);
 
         for (const userRef of members) {
@@ -54,6 +59,7 @@ export const onMessageCreated = onDocumentCreatedWithAuthContext("chats/{chatId}
 
             await db.doc(userChatId).update({
                 unreadCount: FieldValue.increment(1),
+                updatedAt: Math.floor(Date.now())
             })
         }
 
@@ -108,11 +114,13 @@ const getOrCreateUserChat = async (userRef: DocumentReference, chatId: string): 
         .where("chat", "==", db.doc(`chats/${chatId}`)).get();
     if (userChatSnapshot.empty) {
         // create userChat
+        const createdAt = Math.floor(Date.now());
         await db.doc(`userChats/${userRef.id}/chats/${chatId}`).set({
             chat: db.doc(`chats/${chatId}`),
             unreadCount: 1, // set unreadCount to 1 since it is a new chat that created from sendMessage function
             isStarred: false,
-            createdAt: Math.floor(Date.now())
+            createdAt: createdAt,
+            updatedAt: createdAt
         })
         return;
     }

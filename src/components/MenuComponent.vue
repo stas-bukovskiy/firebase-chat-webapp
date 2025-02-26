@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import Logo from "@/components/Logo.vue";
 import ChatListItem from "@/components/ChatListItem.vue";
-import {onMounted, onUnmounted, ref} from "vue";
-import {useRouter} from "vue-router";
+import {computed, onMounted, onUnmounted, ref, watchEffect} from "vue";
+import {useRoute, useRouter} from "vue-router";
 import SearchModal from "@/components/SearchModal.vue";
 import {useChatStore} from "@/stores/chats.ts";
 import {GroupAddOutlined, SearchRound} from "@vicons/material";
@@ -11,14 +11,19 @@ import ProfileComponent from "@/components/ProfileComponent.vue";
 
 const chatStore = useChatStore();
 
-const chats = chatStore.getChats;
+const chats = computed(() => chatStore.userChats.sort((a, b) => {
+  return b.userChat.updatedAt - a.userChat.updatedAt;
+}));
 
-const currentChatUid = ref<null | string>(null);
+const route = useRoute();
+const currentChatUid = ref<null | string>(route.params.id as string | null);
+watchEffect(() => {
+  currentChatUid.value = route.params.id as string | null;
+});
 
 const router = useRouter();
 
 const handleChatClick = (uid: string) => {
-  currentChatUid.value = uid;
   router.push(`/chat/${uid}`);
 };
 
@@ -64,18 +69,20 @@ onUnmounted(() => {
       </div>
     </div>
     <n-scrollbar style="max-height: calc(100vh - 15.3rem)" trigger="hover">
-      <div class="mb-1 me-3" v-for="chat in chats">
-        <ChatListItem class="mb-0" :chatAgg="chat"
-                      :isCurrent="currentChatUid === chat.uid" @click="handleChatClick"
-                      @clickUserProfile="handleChatClick"/>
-      </div>
+      <TransitionGroup tag="div" name="fade">
+        <div class="mb-1 me-3" v-for="(chat, index) in chats" :key="index">
+          <ChatListItem class="mb-0" :chatAgg="chat"
+                        :isCurrent="currentChatUid === chat?.chat?.id" @click="handleChatClick"
+                        @clickUserProfile="handleChatClick"/>
+        </div>
+      </TransitionGroup>
     </n-scrollbar>
     <div class="mt-auto me-3">
       <ProfileComponent/>
     </div>
   </div>
 
-  <n-modal v-model:show="showSearchModal" :mask-closable="false">
+  <n-modal v-model:show="showSearchModal" :mask-closable="true">
     <SearchModal @onClose="showSearchModal = false"/>
   </n-modal>
 
@@ -88,5 +95,21 @@ onUnmounted(() => {
 .header-container {
   background-color: var(--cs-card-bg-color);
   border-radius: 16px;
+}
+
+.fade-move,
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.5s cubic-bezier(0.55, 0, 0.1, 1);
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: scaleY(0.01) translate(30px, 0);
+}
+
+.fade-leave-active {
+  position: absolute;
 }
 </style>

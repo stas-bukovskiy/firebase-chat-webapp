@@ -23,8 +23,7 @@ export const useUserStore = defineStore('users', {
         fetchByUsername(username: string) {
             if (!this.users.has(username)) {
                 const userRef = doc(db, "users", username).withConverter(UserProfileEntity.converter);
-                const userSnap = useDocument(userRef);
-                this.users.set(username, userSnap);
+                this.users.set(username, useDocument(userRef));
             }
 
             return this.users.get(username);
