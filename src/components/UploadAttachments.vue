@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import {type PropType} from 'vue';
+import {computed, type PropType, ref} from 'vue';
 import AttachmentComponent from "@/components/AttachmentComponent.vue";
 import type {AttachmentParams} from "@/services/models.ts";
+import AttachmentPreviewComponent from "@/components/AttachmentPreviewComponent.vue";
 
 const props = defineProps({
   chatId: String,
@@ -9,10 +10,16 @@ const props = defineProps({
   onRemove: Function as () => (index: string) => void,
 });
 
+const attachmentsUrl = ref<string[]>([]);
+
 const emit = defineEmits(["update:isLoading", "addAttachmentUrl"]);
 
-const removeFile = (fileKey: string) => {
-  props.onRemove(fileKey);
+const removeFile = (key: string, url: string) => {
+  console.log('removeFile', key,  url);
+  props.onRemove(key);
+  if (url) {
+    attachmentsUrl.value = attachmentsUrl.value.filter((attachmentUrl) => attachmentUrl !== url);
+  }
 };
 
 const handleLoadingUpdate = (isLoading: boolean) => {
@@ -20,9 +27,21 @@ const handleLoadingUpdate = (isLoading: boolean) => {
 };
 
 const handleAddAttachmentUrl = (key: string, url: string) => {
+  attachmentsUrl.value.push(url);
   emit('addAttachmentUrl', key, url);
 };
 
+const showAttachmentPreview = ref(false);
+const attachmentPreviewUrl = ref<string | undefined>(undefined);
+
+const handleAttachmentPreviewClick = (attachmentUrl: string) => {
+  showAttachmentPreview.value = true;
+  attachmentPreviewUrl.value = attachmentUrl;
+}
+
+const handleAttachmentPreviewClose = () => {
+  showAttachmentPreview.value = false;
+}
 </script>
 
 <template>
@@ -33,9 +52,15 @@ const handleAddAttachmentUrl = (key: string, url: string) => {
                          :isEditable="true"
                          :chatId="props.chatId"
                          :file="attachment.file"
-                         @removed="removeFile(attachment.key)"
+                         @removed="removeFile"
                          @addAttachmentUrl="handleAddAttachmentUrl"
-                         @update:isLoading="handleLoadingUpdate"/>
+                         @update:isLoading="handleLoadingUpdate"
+                         @preview="handleAttachmentPreviewClick"/>
+
+    <n-modal v-if="attachmentsUrl" v-model:show="showAttachmentPreview">
+      <AttachmentPreviewComponent :attachments="attachmentsUrl" :initial-url="attachmentPreviewUrl"
+                                  @close="handleAttachmentPreviewClose"/>
+    </n-modal>
   </div>
 </template>
 

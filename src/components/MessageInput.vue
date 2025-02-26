@@ -11,6 +11,7 @@ import {useNotification} from "naive-ui";
 import UploadAttachments from "@/components/UploadAttachments.vue";
 import type {AttachmentParams} from "@/services/models.ts";
 import {generateFileKey} from "@/utils/files.ts";
+import AttachmentPreviewComponent from "@/components/AttachmentPreviewComponent.vue";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_FILES = 10;
@@ -135,7 +136,7 @@ const handleAttachmentUrl = (key: string, url: string) => {
 
       <textarea
           ref="textareaRef"
-          class="mx-2"
+          class="mx-2 rounded-1"
           v-model="newMessage"
           placeholder="Type a message..."
           rows="1"
@@ -175,7 +176,7 @@ textarea {
 textarea:focus {
   outline: none;
   border-color: var(--cs-primary-color);
-  background-color: var(--cs-badge-current-bg-color);
+  background-color: rgba(252, 163, 17, 0.1);
 }
 
 textarea:focus {

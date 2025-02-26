@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import {ArrowLeft20Regular} from "@vicons/fluent";
-import {onMounted, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import AttachmentComponent from "@/components/AttachmentComponent.vue";
 import {type ChatAggregate, MessageFileEntity} from "@/services/entities.ts";
 import {Pages} from "@/services/enums.ts";
 import {collection, getDocs, limit, orderBy, query, where} from "firebase/firestore";
 import {db} from "@/firebase";
+import AttachmentPreviewComponent from "@/components/AttachmentPreviewComponent.vue";
 
 const PAGE_SIZE = 32;
 
@@ -70,6 +71,21 @@ const loadMoreFiles = async () => {
 };
 
 const isMedia = props.pageType === Pages.MEDIA;
+
+
+const mediaFilesUrls = computed(() => mediaFiles.value.map(file => file.url));
+
+const showAttachmentPreview = ref(false);
+const attachmentPreviewUrl = ref<string | undefined>(undefined);
+
+const handleAttachmentPreviewClick = (attachmentUrl: string) => {
+  showAttachmentPreview.value = true;
+  attachmentPreviewUrl.value = attachmentUrl;
+}
+
+const handleAttachmentPreviewClose = () => {
+  showAttachmentPreview.value = false;
+}
 </script>
 
 <template>
@@ -92,13 +108,18 @@ const isMedia = props.pageType === Pages.MEDIA;
         <p class="badge-default">No {{ isMedia ? 'media' : 'files' }} yet</p>
       </div>
 
-      <AttachmentComponent v-for="mediaFile in mediaFiles" :key="mediaFile.id"
+      <AttachmentComponent v-for="mediaFile in mediaFiles" :key="mediaFile.id" @preview="handleAttachmentPreviewClick"
                            :fileUrl="mediaFile.url" class="attachment-item"/>
 
       <div v-if="isLoading && !isInitialLoading" class="loading-spinner">
         <n-spin/>
       </div>
     </div>
+
+    <n-modal v-if="mediaFiles.length" v-model:show="showAttachmentPreview">
+      <AttachmentPreviewComponent :attachments="mediaFilesUrls" :initial-url="attachmentPreviewUrl"
+                                  @close="handleAttachmentPreviewClose"/>
+    </n-modal>
   </div>
 </template>
 

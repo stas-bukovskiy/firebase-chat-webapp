@@ -152,7 +152,7 @@ const handleBackButton = () => {
         <ArrowLeft20Regular/>
       </n-icon>
     </n-button>
-    <h4 class="mb-0">Pinned Messages</h4>
+    <h4 class="mb-0">Links</h4>
   </div>
 
   <div class="messages-container px-4" ref="chatContainer" @scroll="onScroll">
@@ -164,7 +164,7 @@ const handleBackButton = () => {
       <n-spin :show="isInitialLoading"/>
     </div>
     <div class="initial-loading-spinner" v-else-if="!linksMessages.length">
-      <p class="badge-default">No pinned messages yet</p>
+      <p class="badge-default">No messages with links yet</p>
     </div>
 
     <div style="margin-top: auto;">

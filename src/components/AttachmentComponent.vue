@@ -1,6 +1,56 @@
-<script setup lang="ts">
+<template>
+  <div class="file-card d-flex justify-content-center align-items-center"
+       :style="!isImage ? {border: '2px solid'} : {}"
+       @mouseover="hover = isEditable" @mouseleave="hover = false"
+       @click.stop.prevent="!isEditable && $emit('preview', fileUrl)">
 
-import {computed, onMounted, type PropType, ref} from "vue";
+    <!-- Progress bar -->
+    <div v-if="loading" class="file-card-overlay" style="opacity: 100%">
+      <n-progress type="circle" :percentage="percentage" style="width: 50px">
+        <n-button text @click="handleCancelUploading">
+          <n-icon size="1rem">
+            <Dismiss24Filled/>
+          </n-icon>
+        </n-button>
+      </n-progress>
+    </div>
+
+    <!-- Options for file -->
+    <div v-else class="file-card-overlay" :style="!isEditable ? {cursor: 'pointer'} : {}">
+      <div v-if="isEditable">
+        <n-button text v-if="isImage" @click="handleViewClick">
+          <n-icon size="1.4rem" class="me-1">
+            <ViewFilled/>
+          </n-icon>
+        </n-button>
+        <n-button text v-else @click="handleDownloadClick">
+          <n-icon size="1.4rem" class="me-1">
+            <Download/>
+          </n-icon>
+        </n-button>
+
+        <n-button text @click="handleFileRemoving">
+          <n-icon size="1.4rem">
+            <Delete24Filled/>
+          </n-icon>
+        </n-button>
+      </div>
+    </div>
+
+    <!-- Image section -->
+    <img v-if="isImage && !loading" :src="fileUrl" :alt="fileName" class="file-image"/>
+    <!-- File section -->
+    <div v-else class="d-flex justify-content-center flex-column align-items-center text-muted fw-bold">
+      <n-icon size="2rem" class="mb-2">
+        <Document24Regular/>
+      </n-icon>
+      <div class="file-name">{{ fileName }}</div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import {computed, onMounted, type PropType, ref, watchEffect} from "vue";
 import {
   deleteObject,
   getDownloadURL,
@@ -14,6 +64,7 @@ import {notifyError} from "@/utils/errors.ts";
 import {getFileExtension, getFileNameFromStorageUrl, getFilePathFromStorageUrl} from "@/utils/files.ts";
 import {Delete24Filled, Dismiss24Filled, Document24Regular} from "@vicons/fluent";
 import {ViewFilled, Download} from "@vicons/carbon";
+import {downloadStorageFile} from "@/utils/download.ts";
 
 const props = defineProps({
   fileKey: String,
@@ -33,7 +84,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["addAttachmentUrl", "update:isLoading", "removed"]);
+const emit = defineEmits(["addAttachmentUrl", "update:isLoading", "removed", "preview"]);
 
 const notification = useNotification();
 
@@ -101,7 +152,7 @@ const handleCancelUploading = () => {
     } catch (error) {
       notifyError(notification, error);
     } finally {
-      emit("removed");
+      emit("removed", props.fileKey, fileUrl.value);
       reset();
     }
   }
@@ -110,11 +161,19 @@ const handleCancelUploading = () => {
 const handleFileRemoving = () => {
   const fileDeleteRef = firebaseRef(storage, getFilePathFromStorageUrl(fileUrl.value));
   deleteObject(fileDeleteRef).then(() => {
+    emit("removed", props.fileKey, fileUrl.value);
     fileUrl.value = null;
-    emit("removed");
   }).catch((error) => {
     notifyError(notification, error);
   });
+}
+
+const handleDownloadClick = () => {
+  downloadStorageFile(currentAttachmentUrl.value);
+}
+
+const handleViewClick = () => {
+  emit("preview", fileUrl.value);
 }
 
 const isImage = computed(() => {
@@ -130,55 +189,6 @@ const fileName = computed(() => {
 
 </script>
 
-<template>
-  <div class="file-card d-flex justify-content-center align-items-center"
-       :style="!isImage ? {border: '2px solid'} : {}"
-       @mouseover="hover = isEditable" @mouseleave="hover = false">
-
-    <!-- Progress bar -->
-    <div v-if="loading" class="file-card-overlay" style="opacity: 100%">
-      <n-progress type="circle" :percentage="percentage" style="width: 50px">
-        <n-button text @click="handleCancelUploading">
-          <n-icon size="1rem">
-            <Dismiss24Filled/>
-          </n-icon>
-        </n-button>
-      </n-progress>
-    </div>
-
-    <!-- Options for file -->
-    <div v-else class="file-card-overlay" :style="!isEditable ? {cursor: 'pointer'} : {}">
-      <div v-if="isEditable">
-        <n-button text v-if="isImage">
-          <n-icon size="1.4rem" class="me-1">
-            <ViewFilled/>
-          </n-icon>
-        </n-button>
-        <n-button text v-else>
-          <n-icon size="1.4rem" class="me-1">
-            <Download/>
-          </n-icon>
-        </n-button>
-
-        <n-button text @click="handleFileRemoving">
-          <n-icon size="1.4rem">
-            <Delete24Filled/>
-          </n-icon>
-        </n-button>
-      </div>
-    </div>
-
-    <!-- Image section -->
-    <img v-if="isImage && !loading" :src="fileUrl" :alt="fileName" class="file-image"/>
-    <!-- File section -->
-    <div v-else class="d-flex justify-content-center flex-column align-items-center text-muted fw-bold">
-      <n-icon size="2rem" class="mb-2">
-        <Document24Regular/>
-      </n-icon>
-      <div class="file-name">{{ fileName }}</div>
-    </div>
-  </div>
-</template>
 
 <style scoped>
 .file-card {
