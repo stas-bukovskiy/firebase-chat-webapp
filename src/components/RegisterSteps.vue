@@ -36,7 +36,7 @@ const profileParams = reactive({
   firstName: 'TestUser1',
   lastName: '',
   username: 'test.user.1',
-  photoUrl: null
+  photoUrl: null,
 })
 
 const credentialsFormRef = ref<FormInst | null>(null)
@@ -133,8 +133,8 @@ const createUserProfile = async () => {
       firstName: profileParams.firstName,
       lastName: profileParams.lastName,
       keywords: generateUserKeywords(profileParams),
-      email: auth.currentUser.email,
-      uid: auth.currentUser.uid,
+      email: auth.currentUser?.email,
+      uid: auth.currentUser?.uid,
       photoUrl: profileParams.photoUrl,
       createdAt: nowToUTCTimestamp(),
     };
@@ -172,7 +172,7 @@ const handleCreateUserClick = (e: MouseEvent) => {
 
 const handleNewAvatarUrl = (url: string) => {
   console.log('New avatar URL:', url)
-  profileParams.photoUrl = url
+  profileParams.photoUrl = url;
 }
 
 const currentUserStore = useCurrentUserStore()

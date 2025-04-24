@@ -202,7 +202,7 @@ onUnmounted(() => {
 const onScroll = async () => {
   if (!chatContainer.value) return
 
-  updateScrolledMessageStatuses();
+  await updateScrolledMessageStatuses();
 
   const {scrollTop, scrollHeight, clientHeight} = chatContainer.value;
   if (chatContainer.value.scrollTop === 0 && messages.value.length) {

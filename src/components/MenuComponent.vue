@@ -53,7 +53,7 @@ onUnmounted(() => {
 
 <template>
   <div class="py-3 pe-2" style="height: calc(100vh - 2.9rem);">
-    <div class="header-container mb-3 p-3 d-flex justify-content-between align-items-center me-3">
+    <div class="header-container mb-3 p-3 d-flex justify-content-between align-items-center me-3 rounded-4">
       <Logo/>
       <div class="div">
         <n-button text class="me-2" @click="handleCreateGroupClick">
@@ -94,7 +94,6 @@ onUnmounted(() => {
 <style scoped>
 .header-container {
   background-color: var(--cs-card-bg-color);
-  border-radius: 16px;
 }
 
 .fade-move,

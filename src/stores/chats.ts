@@ -187,6 +187,7 @@ export const useChatStore = defineStore("chats", {
         getChats: (state) => state.userChats.sort((a, b) => {
             return b.userChat?.updatedAt - a.userChat?.updatedAt
         }),
+        getChatsCount: (state) => state.userChats.length,
         getChatByUserChatId: (state) => {
             return (userChatId: string) => {
                 return state.userChats.find(chat => chat.userChat.id === userChatId);

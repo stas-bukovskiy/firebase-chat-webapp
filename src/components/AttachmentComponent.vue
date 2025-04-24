@@ -169,7 +169,7 @@ const handleFileRemoving = () => {
 }
 
 const handleDownloadClick = () => {
-  downloadStorageFile(currentAttachmentUrl.value);
+  downloadStorageFile(fileUrl.value);
 }
 
 const handleViewClick = () => {

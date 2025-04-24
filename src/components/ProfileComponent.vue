@@ -28,7 +28,7 @@ const handleLogoutClick = () => {
 
 
 <template>
-  <div class="header-container mt-3 p-3 d-flex align-items-center justify-content-between w-100">
+  <div class="header-container mt-3 p-3 d-flex align-items-center justify-content-between w-100 rounded-4">
     <div class="d-flex align-items-center">
       <UserAvatar :user-profile="currentUserProfile" size="big"/>
       <div class="ms-3">
@@ -60,6 +60,5 @@ const handleLogoutClick = () => {
 <style scoped>
 .header-container {
   background-color: var(--cs-card-bg-color);
-  border-radius: 16px;
 }
 </style>

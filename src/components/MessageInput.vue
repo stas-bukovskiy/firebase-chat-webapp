@@ -11,7 +11,6 @@ import {useNotification} from "naive-ui";
 import UploadAttachments from "@/components/UploadAttachments.vue";
 import type {AttachmentParams} from "@/services/models.ts";
 import {generateFileKey} from "@/utils/files.ts";
-import AttachmentPreviewComponent from "@/components/AttachmentPreviewComponent.vue";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_FILES = 10;

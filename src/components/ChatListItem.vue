@@ -1,9 +1,8 @@
 <script setup lang="ts">
 
-import {computed, onMounted, type PropType, ref} from "vue";
+import {computed, type PropType, ref} from "vue";
 import {generateDisplayName} from "@/utils/avatars.ts";
 import type {ChatAggregate} from "@/services/entities.ts";
-import type {AvatarBadgeBorderColors} from "@/utils/avatar_config.ts";
 import Avatar from "@/components/Avatar.vue";
 
 const props = defineProps({
@@ -22,8 +21,8 @@ const isHover = ref(props.isCurrent);
 const handleClick = () => {
   if (props.chatAgg?.userChat) {
     emits("click", props.chatAgg.userChat.id);
-  } else if (props.chatAgg.otherUserProfile) {
-    emits("clickUserProfile", props.chatAgg.otherUserProfile.id);
+  } else if (props.chatAgg?.otherUserProfile) {
+    emits("clickUserProfile", props.chatAgg?.otherUserProfile.id);
   }
 };
 
@@ -40,7 +39,7 @@ const isGroup = computed(() => {
 </script>
 
 <template>
-  <div class="chat-item d-flex w-100 align-items-center" @mouseover="isHover = true" @mouseleave="isHover = false"
+  <div class="chat-item d-flex w-100 align-items-center rounded-4" @mouseover="isHover = true" @mouseleave="isHover = false"
        @click="handleClick"
        :style="{ backgroundColor: isHover || props.isCurrent ? 'var(--cs-current-item-bg-color)' : '' }">
     <div>
@@ -60,7 +59,6 @@ const isGroup = computed(() => {
 <style scoped>
 .chat-item {
   padding: 10px;
-  border-radius: 8px;
   transition: background-color 0.3s ease;
   cursor: pointer;
 }

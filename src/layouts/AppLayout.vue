@@ -17,7 +17,7 @@ initializeMessageListener(showChatNotification);
       <MenuComponent/>
     </div>
     <div class="content">
-      <div class="content-inner">
+      <div class="content-inner rounded-4">
         <router-view/>
       </div>
     </div>
@@ -44,7 +44,6 @@ div.content {
 .content-inner {
   background-color: var(--cs-card-bg-color);
   margin: 1.4rem 1.4rem 1.4rem 0;
-  border-radius: 20px;
   height: calc(100vh - 2.9rem);
 }
 

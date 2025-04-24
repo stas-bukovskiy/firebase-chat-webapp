@@ -2,6 +2,7 @@
 import {ref, computed, onMounted, onUnmounted} from 'vue'
 import {requestPermissionAndGetToken, unsubscribe} from '@/services/NotificationService'
 
+// TODO: fix
 const permission = ref<NotificationPermission>(Notification.permission)
 
 onMounted(async () => {

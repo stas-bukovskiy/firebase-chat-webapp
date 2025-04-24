@@ -1,44 +1,22 @@
 <script setup lang="ts">
 
-import {signOut} from 'firebase/auth'
-import {auth} from "@/firebase";
-import {useRouter} from "vue-router";
+import {useChatStore} from "@/stores/chats.ts";
+import {computed} from "vue";
 
-const router = useRouter()
-
-const logOut = async () => {
-  signOut(auth)
-      .then(router.push({name: 'login'}))
-}
-
-import { useChatNotification } from '@/hooks/useChatNotification'
-
-const { showChatNotification } = useChatNotification()
-
-function handleNewMessage() {
-  // Example chat data. In a real application, this data may come from a websocket or API.
-  const chat = {
-    data: {
-      chatId: 'QW3kqMpSrnYpMYu8IEyc'
-    },
-    notification: {
-      title: 'New Message',
-      body: 'Hello, check out this message!'
-    }
-  }
-
-  showChatNotification(chat)
-}
+const chatStore = useChatStore()
+const chatsCount = computed(() => chatStore.getChatsCount)
 
 </script>
 
 <template>
-  Open the chat to start messaging...
-  <n-button type="primary" @click="logOut">
-    Log out
-  </n-button>
-  <n-button @click="handleNewMessage">Simulate New Chat Message</n-button>
-
+  <div class="d-flex justify-content-center align-items-center" style="height: 100%">
+      <div v-if="chatsCount" class="badge-default fs-6">
+        Select a chat to start messaging!
+      </div>
+      <div v-else class="badge-default fs-6">
+        Start searching for a chat to start messaging.
+      </div>
+  </div>
 </template>
 
 <style scoped>
