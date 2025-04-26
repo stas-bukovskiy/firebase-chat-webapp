@@ -8,6 +8,8 @@ import {signOut} from "firebase/auth";
 import {auth} from "@/firebase";
 import {useRouter} from "vue-router";
 import ProfileSettingsModal from "@/components/ProfileSettingsModal.vue";
+import {unsubscribe} from "@/services/NotificationService.ts";
+import {unsubscribeFromTokenRefresh} from "@/services/TokenRefreshService.ts";
 
 const currentUserStore = useCurrentUserStore();
 const currentUserProfile = currentUserStore.user
@@ -19,9 +21,11 @@ const handleSettingClick = () => {
 };
 
 const router = useRouter();
-const handleLogoutClick = () => {
-  signOut(auth)
-      .then(router.push({name: 'login'}))
+const handleLogoutClick = async () => {
+  await unsubscribe()
+  await unsubscribeFromTokenRefresh()
+  await router.push({name: 'login'})
+  await signOut(auth)
 };
 
 </script>

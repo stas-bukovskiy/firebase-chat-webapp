@@ -3,17 +3,74 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // This rule allows anyone with your Firestore database reference to view, edit,
-    // and delete all data in your Firestore database. It is useful for getting
-    // started, but it is configured to expire after 30 days because it
-    // leaves your app open to attackers. At that time, all client
-    // requests to your Firestore database will be denied.
-    //
-    // Make sure to write security rules for your app before that time, or else
-    // all client requests to your Firestore database will be denied until you Update
-    // your rules
-    match /{document=**} {
-      allow read, write: if request.time < timestamp.date(2026, 1, 20);
+    // helper to check signed-in user
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // grab the username from the logged-in user’s token
+    function getUsername() {
+      return request.auth.token.name;
+    }
+
+    function getUserRef() {
+    	return /databases/$(database)/documents/users/$(getUsername())
+    }
+
+    match /refreshTime/{username} {
+        allow read, write: if isSignedIn();
+    }
+
+    // users collection:
+    // • anyone can read any profile
+    // • only the user themself can write their own doc
+    match /users/{username} {
+      // public read
+      allow read: if isSignedIn();
+
+      // create: only if the signer’s UID matches the incoming uid field
+      allow create: if isSignedIn()
+                    && request.auth.uid == request.resource.data.uid;
+
+      // update/delete: only if the existing uid field matches the signer
+      allow update, delete: if isSignedIn()
+                            && resource.data.uid == request.auth.uid;
+
+      match /tokens/{tokenId} {
+        allow read, write: if isSignedIn()
+                            && username == getUsername();
+      }
+    }
+
+    // userChats collection:
+    // path: userChats/{username}/chats
+    // • only the owner (username) may read or write
+    match /userChats/{username}/{multiSegment=**} {
+      allow read, write: if isSignedIn()
+                         && getUsername() == username;
+    }
+
+    // chats collection:
+    // • chat doc must have a members array of uids
+    // • only members may create, read or modify the chat
+    match /chats/{chatId} {
+      // true if the caller’s token-username appears in members[]
+      function isMember() {
+        return isSignedIn() && getUserRef() in resource.data.members;
+      }
+
+      // create: you must include yourself in the new members list
+      allow create: if isSignedIn()
+        && request.resource.data.members is list
+        && getUserRef() in resource.data.members;
+
+      // only existing members can read, update or delete
+      allow read, update, delete: if isMember();
+
+      // messages subcollection: same membership rule
+      match /{multiSegment=**} {
+        allow read, write: if true;
+      }
     }
   }
 }

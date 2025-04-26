@@ -36,7 +36,7 @@ const profileParams = reactive({
   firstName: 'TestUser1',
   lastName: '',
   username: 'test.user.1',
-  photoUrl: null,
+  photoUrl: '',
 })
 
 const credentialsFormRef = ref<FormInst | null>(null)
@@ -135,7 +135,8 @@ const createUserProfile = async () => {
       keywords: generateUserKeywords(profileParams),
       email: auth.currentUser?.email,
       uid: auth.currentUser?.uid,
-      photoUrl: profileParams.photoUrl,
+      photoUrl: profileParams.photoUrl ? profileParams.photoUrl : '',
+      isOnline: true,
       createdAt: nowToUTCTimestamp(),
     };
     transaction.set(userDocRef, userToCreate);

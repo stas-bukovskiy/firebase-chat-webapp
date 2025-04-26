@@ -1,10 +1,14 @@
 <script setup lang="ts">
 
 import {useRoute} from "vue-router";
-import {provide, ref, watch} from "vue";
+import {onMounted, onUnmounted, provide, ref, watch} from "vue";
 import {useChatStore} from "@/stores/chats.ts";
 import ChatInfoComponent from "@/components/ChatInfoComponent.vue";
 import {INJECT_KEYS} from "@/utils/inject_keys.ts";
+import EnableNotificationComponent from "@/components/EnableNotificationComponent.vue";
+import {useChatNotification} from "@/hooks/useChatNotification.ts";
+import {initializeMessageListener} from "@/services/NotificationService.ts";
+import {subscribeToTokenRefresh, unsubscribeFromTokenRefresh} from "@/services/TokenRefreshService.ts";
 
 
 const route = useRoute();
@@ -16,6 +20,19 @@ watch(() => route.params, (params) => {
 });
 
 provide(INJECT_KEYS.ChatAgg, chatAgg);
+
+const {showChatNotification} = useChatNotification()
+
+onMounted(async () => {
+  // Listen for foreground messages
+  initializeMessageListener(showChatNotification);
+  // Subscribe to token refresh
+  await subscribeToTokenRefresh();
+});
+
+onUnmounted(() => {
+  unsubscribeFromTokenRefresh();
+});
 
 </script>
 
@@ -31,6 +48,8 @@ provide(INJECT_KEYS.ChatAgg, chatAgg);
     <div class="col-4 ps-0 chat-info-layout">
       <ChatInfoComponent :chatAgg="chatAgg"/>
     </div>
+
+    <EnableNotificationComponent/>
   </div>
 </template>
 

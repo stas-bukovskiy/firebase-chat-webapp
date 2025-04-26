@@ -1,14 +1,5 @@
 <script setup lang="ts">
-
 import MenuComponent from "@/components/MenuComponent.vue";
-import {initializeMessageListener} from '@/services/NotificationService'
-import EnableNotificationComponent from "@/components/EnableNotificationComponent.vue";
-import {useChatNotification} from "@/hooks/useChatNotification.ts";
-
-const {showChatNotification} = useChatNotification()
-
-// Listen for foreground messages
-initializeMessageListener(showChatNotification);
 </script>
 
 <template>
@@ -21,7 +12,6 @@ initializeMessageListener(showChatNotification);
         <router-view/>
       </div>
     </div>
-    <EnableNotificationComponent/>
   </main>
 </template>
 
