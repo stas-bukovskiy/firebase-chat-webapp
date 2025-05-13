@@ -1,8 +1,8 @@
 import {defineStore} from "pinia";
 import {db} from "@/firebase";
 import {collection, doc, addDoc, onSnapshot, query, where, documentId, setDoc} from "firebase/firestore";
-import {ChatEntity, type ChatAggregate, GroupChatAggregate, PrivateChatAggregate} from "@/services/entities.ts";
-import {UserChatEntity} from "@/services/entities.ts";
+import {ChatEntity, type ChatAggregate, GroupChatAggregate, PrivateChatAggregate} from "@/models/entities.ts";
+import {UserChatEntity} from "@/models/entities.ts";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
 import {useUserStore} from "@/stores/users.ts";
 import {nowToUTCTimestamp} from "@/utils/datetime.ts";

@@ -27,15 +27,15 @@ const current = ref(props.initialState);
 const isCredentialsStep = computed(() => current.value === 1)
 
 const credentialsParams = reactive({
-  email: 'test.user.1@mail.com',
-  password: 'Password',
-  confirmPassword: 'Password'
+  email: '',
+  password: '',
+  confirmPassword: ''
 })
 
 const profileParams = reactive({
-  firstName: 'TestUser1',
+  firstName: '',
   lastName: '',
-  username: 'test.user.1',
+  username: '',
   photoUrl: '',
 })
 

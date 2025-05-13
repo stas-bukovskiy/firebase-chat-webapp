@@ -45,11 +45,13 @@ const router = createRouter({
                 {
                     name: 'app',
                     path: '',
+                    meta: {requiresAuth: true},
                     component: AppView,
                 },
                 {
                     path: "chat/:id",
                     component: ChatLayout,
+                    meta: {requiresAuth: true},
                     children: [
                         {
                             path: '',
@@ -83,6 +85,7 @@ router.beforeEach(async (to, from, next) => {
     }
 
     const user = auth.currentUser;
+    console.log("Current user", user);
     if (!user) {
         next({name: 'login'})
         return
@@ -90,6 +93,11 @@ router.beforeEach(async (to, from, next) => {
 
     const requireCompleteProfile = to.matched.some(record => record.meta.requireCompleteProfile);
     if (requireCompleteProfile) {
+        if (user.email === null) {
+            console.error("User email is not available");
+            next({name: 'complete-profile'})
+        }
+
         const userProfile = await currentUserStore.fetchUserByEmail(user.email);
         console.log("Fetched user profile", userProfile);
         if (!userProfile) {

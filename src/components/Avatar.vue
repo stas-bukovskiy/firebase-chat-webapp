@@ -2,9 +2,8 @@
 
 import UserAvatar from "@/components/UserAvatar.vue";
 import GroupAvatar from "@/components/GroupAvatar.vue";
-import type {AvatarBadgeBorderColors} from "@/utils/avatar_config.ts";
 import {computed, type PropType} from "vue";
-import type {ChatAggregate} from "@/services/entities.ts";
+import type {ChatAggregate} from "@/models/entities.ts";
 
 
 const props = defineProps({
@@ -28,7 +27,7 @@ const isGroup = computed(() => {
 
 <template>
   <GroupAvatar v-if="isGroup" :chatAgg="props.chatAgg" :size="props.size"/>
-  <UserAvatar v-else :userProfile="props.chatAgg.otherUserProfile" :isCurrent="props.isCurrent"
+  <UserAvatar v-else :userProfile="props.chatAgg?.otherUserProfile" :isCurrent="props.isCurrent"
               :size="props.size"
               :badgeBorderColors="props.badgeBorderColors"/>
 </template>

@@ -4,7 +4,7 @@ import {db} from "@/firebase";
 import UploadAvatar from "@/components/UploadAvatar.vue";
 import {computed, onMounted, reactive, ref} from "vue";
 import {generateFirestoreId} from "@/utils/uid.ts";
-import {ChatEntity, PrivateChatAggregate, UserProfileEntity} from "@/services/entities.ts";
+import {ChatEntity, PrivateChatAggregate, UserProfileEntity} from "@/models/entities.ts";
 import {collection, doc, getDocs, limit, orderBy, query, where} from "firebase/firestore";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
 import SearchPanelComponent from "@/components/SearchPanelComponent.vue";

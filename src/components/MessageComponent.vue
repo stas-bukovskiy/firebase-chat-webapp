@@ -2,7 +2,7 @@
 import {computed, type PropType, ref} from "vue";
 import {formatUtcTimestamp} from "../utils/datetime.ts";
 import {Checkmark24Filled, Delete24Regular, Pin24Regular, PinOff24Regular} from "@vicons/fluent";
-import type {MessageEntity} from "@/services/entities.ts";
+import type {MessageEntity} from "@/models/entities.ts";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
 import {useUserStore} from "@/stores/users.ts";
 import AttachmentComponent from "@/components/AttachmentComponent.vue";

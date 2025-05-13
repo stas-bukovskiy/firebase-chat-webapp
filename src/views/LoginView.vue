@@ -11,8 +11,8 @@ import Logo from "@/components/Logo.vue";
 
 
 const loginParams = reactive({
-  email: 'test.user.2@mail.com',
-  password: 'Password',
+  email: '',
+  password: '',
 })
 
 const formRef = ref<FormInst | null>(null)

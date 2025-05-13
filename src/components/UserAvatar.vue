@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed, type PropType} from "vue";
 import {generateAvatarColors, generateDisplayName, generateInitials} from "@/utils/avatars.ts";
-import type {UserProfileEntity} from "@/services/entities.ts";
+import type {UserProfileEntity} from "@/models/entities.ts";
 import {SIZE_CONFIGS} from "@/utils/avatar_config.ts";
 
 const props = defineProps({
@@ -45,6 +45,7 @@ const avatarInitialsStyles = computed(() => {
 });
 
 const badgeStyles = computed(() => {
+  console.log("userProfile", props.userProfile);
   return {
     ...SIZE_CONFIGS.get(props.size).badge,
     backgroundColor: props.userProfile?.isOnline ? "var(--cs-badge-online-bg-color)" : "var(--cs-badge-offline-bg-color)",

@@ -5,6 +5,9 @@ interface EntityInterface {
 
 export default class Entity<T extends EntityInterface> implements EntityInterface {
 
+    id: string;
+    createdAt: number;
+
     /**
      * Create a FirestoreDataConverter
      */

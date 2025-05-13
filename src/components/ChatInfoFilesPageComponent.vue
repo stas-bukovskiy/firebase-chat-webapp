@@ -2,8 +2,8 @@
 import {ArrowLeft20Regular} from "@vicons/fluent";
 import {computed, onMounted, ref} from "vue";
 import AttachmentComponent from "@/components/AttachmentComponent.vue";
-import {type ChatAggregate, MessageFileEntity} from "@/services/entities.ts";
-import {Pages} from "@/services/enums.ts";
+import {type ChatAggregate, MessageFileEntity} from "@/models/entities.ts";
+import {Pages} from "@/models/enums.ts";
 import {collection, getDocs, limit, orderBy, query, where} from "firebase/firestore";
 import {db} from "@/firebase";
 import AttachmentPreviewComponent from "@/components/AttachmentPreviewComponent.vue";

@@ -38,7 +38,6 @@ export const setTokenClaimsAfterUserUpdate = onDocumentWrittenWithAuthContext("u
         }
 
         const data = snapshot.data();
-        console.log("ddata", data);
         if (!data) {
             console.log("No data associated with the event");
             return;
@@ -72,9 +71,7 @@ export const setTokenClaimsAfterUserUpdate = onDocumentWrittenWithAuthContext("u
 
         // update the refresh time for the user to prompt the client to refresh the token
         await db.doc(`refreshTime/${event.params.username}`).set({
-            refreshTime: Math.floor(Date.now() + 1000 * 60 * 3), // 3 minutes
-        }, {
-            merge: true
+            forceRefresh: true,
         });
     });
 

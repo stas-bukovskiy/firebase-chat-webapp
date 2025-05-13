@@ -2,7 +2,7 @@ import {defineStore} from 'pinia'
 import {reactive} from "vue";
 import {doc} from "firebase/firestore";
 import {db} from "@/firebase";
-import {UserProfileEntity} from "@/services/entities.ts";
+import {UserProfileEntity} from "@/models/entities.ts";
 import {useDocument} from "vuefire";
 
 export const useUserStore = defineStore('users', {

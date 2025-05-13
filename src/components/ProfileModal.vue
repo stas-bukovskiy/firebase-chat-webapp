@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import {computed, type PropType} from "vue";
-import type {UserProfileEntity} from "@/services/entities.ts";
+import type {UserProfileEntity} from "@/models/entities.ts";
 import UserAvatar from "@/components/UserAvatar.vue";
 import {generateDisplayName} from "@/utils/avatars.ts";
 import {Send24Regular} from "@vicons/fluent";

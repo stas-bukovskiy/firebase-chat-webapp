@@ -2,7 +2,7 @@
 
 import {computed, type PropType, ref} from "vue";
 import {generateDisplayName} from "@/utils/avatars.ts";
-import type {ChatAggregate} from "@/services/entities.ts";
+import type {ChatAggregate} from "@/models/entities.ts";
 import Avatar from "@/components/Avatar.vue";
 
 const props = defineProps({

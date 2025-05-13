@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import UserAvatar from "@/components/UserAvatar.vue";
-import type {ChatAggregate} from "@/services/entities.ts";
+import type {ChatAggregate} from "@/models/entities.ts";
 import {computed, type PropType, ref} from "vue";
 import {generateDisplayName} from "@/utils/avatars.ts";
 import {
@@ -13,7 +13,7 @@ import {
 } from '@vicons/fluent';
 import ChatInfoListItemComponent from "@/components/ChatInfoListItemComponent.vue";
 import {useUserStore} from "@/stores/users.ts";
-import {Pages} from "@/services/enums.ts";
+import {Pages} from "@/models/enums.ts";
 import Avatar from "@/components/Avatar.vue";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
 import EditGroupModal from "@/components/EditGroupModal.vue";

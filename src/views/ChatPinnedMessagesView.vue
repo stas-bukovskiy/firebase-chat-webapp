@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed, inject, nextTick, onMounted, onUnmounted, reactive, ref, watch} from 'vue';
 import MessageComponent from "@/components/MessageComponent.vue";
-import {type ChatAggregate, MessageEntity, PinnedMessageEntity} from "@/services/entities.ts";
+import {type ChatAggregate, MessageEntity, PinnedMessageEntity} from "@/models/entities.ts";
 import {
   collection,
   limit,

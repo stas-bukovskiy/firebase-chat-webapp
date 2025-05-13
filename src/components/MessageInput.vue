@@ -9,7 +9,7 @@ import {SendRound} from "@vicons/material";
 import {notifyError, notifyErrorDetail} from "@/utils/errors.ts";
 import {useNotification} from "naive-ui";
 import UploadAttachments from "@/components/UploadAttachments.vue";
-import type {AttachmentParams} from "@/services/models.ts";
+import type {AttachmentParams} from "@/models/models.ts";
 import {generateFileKey} from "@/utils/files.ts";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB

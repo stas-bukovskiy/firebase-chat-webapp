@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed, type PropType, ref} from "vue";
 import {generateAvatarColors, generateDisplayName, generateInitials} from "@/utils/avatars.ts";
-import type {ChatAggregate} from "@/services/entities.ts";
+import type {ChatAggregate} from "@/models/entities.ts";
 import {SIZE_CONFIGS} from "@/utils/avatar_config.ts";
 
 const props = defineProps({

@@ -2,7 +2,7 @@
 import SearchPanelComponent from "@/components/SearchPanelComponent.vue";
 import {computed, reactive, ref} from "vue";
 import ChatListItem from "@/components/ChatListItem.vue";
-import {type ChatAggregate, PrivateChatAggregate, UserProfileEntity} from "@/services/entities.ts";
+import {type ChatAggregate, PrivateChatAggregate, UserProfileEntity} from "@/models/entities.ts";
 import {useChatStore} from "@/stores/chats.ts";
 import {collection, query, where, orderBy, limit, getDocs} from "firebase/firestore";
 import {db} from "@/firebase";

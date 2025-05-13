@@ -1,6 +1,5 @@
-import type {UserChatEntity, UserProfileEntity} from "@/services/entities.ts";
 import type DocumentReference from "firebase"
-import Entity from "@/services/entity.ts";
+import Entity from "@/models/entity.ts";
 
 
 // UserChatEntity is a model that represents a chat info for a specific user
@@ -24,6 +23,7 @@ export class UserChatEntity extends Entity {
 
 export class ChatEntity extends Entity {
 
+    id: string;
     isGroup: boolean;
     groupName?: string;
     groupImageUrl?: string;

@@ -1,48 +1,62 @@
 import {createApp, markRaw} from 'vue'
 import {createPinia} from 'pinia'
 
+import {auth} from "@/firebase";
+import {onAuthStateChanged} from "firebase/auth";
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './assets/main.css'
 
 import naive from 'naive-ui'
 import router from './router'
-import VueChatScroll from 'vue3-chat-scroll';
 import {VueFire} from 'vuefire'
 import {app as firebaseApp} from './firebase'
 
 import {install as installDirectives} from "@/directives/intersect.ts";
 
 import App from './App.vue'
+import {useCurrentUserStore} from "@/stores/current-user.ts";
 
 
-const app = createApp(App)
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker
+        .register('/firebase-messaging-sw.js')
+        .then((registration) => {
+            console.log('Service Worker registered with scope:', registration.scope)
+        })
+        .catch((err) => {
+            console.error('Service Worker registration failed:', err)
+        })
+}
 
-app.use(naive)
-app.use(router)
 
-const pinia = createPinia()
-pinia.use(({store}) => {
-    store.router = markRaw(router);
-})
-app.use(pinia)
+let appMounted = false;
 
-app.use(VueChatScroll)
-app.use(VueFire, {
-    firebaseApp,
-    modules: [],
-})
+onAuthStateChanged(auth, user => {
+    const pinia = createPinia()
+    pinia.use(({store}) => {
+        store.router = markRaw(router);
+    })
 
-installDirectives(app);
+    // populate your store with the user (or clear it)
+    const store = useCurrentUserStore(pinia);
+    store.setRawUser(user);
 
-// if ('serviceWorker' in navigator) {
-//     navigator.serviceWorker
-//         .register('/firebase-messaging-sw.js')
-//         .then((registration) => {
-//             console.log('Service Worker registered with scope:', registration.scope)
-//         })
-//         .catch((err) => {
-//             console.error('Service Worker registration failed:', err)
-//         })
-// }
+    // mount app once
+    if (!appMounted) {
+        const app = createApp(App)
+            .use(pinia)
+            .use(router)
+            .use(naive)
+            .use(VueFire, {
+                firebaseApp,
+                modules: [],
+            });
 
-app.mount('#app')
+        installDirectives(app);
+
+        app.mount("#app");
+
+        appMounted = true;
+    }
+});

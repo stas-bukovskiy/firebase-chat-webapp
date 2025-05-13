@@ -1,6 +1,6 @@
 import {doc, runTransaction} from "firebase/firestore";
 import {db} from "@/firebase";
-import type {MessageEntity} from "@/services/entities.ts";
+import type {MessageEntity} from "@/models/entities.ts";
 import {nowToUTCTimestamp} from "@/utils/datetime.ts";
 
 export async function togglePinnedMessage(chatId: string, message: MessageEntity): Promise<void> {

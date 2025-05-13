@@ -51,10 +51,6 @@ const themeOverrides: GlobalThemeOverrides = {
     <n-notification-provider>
       <n-modal-provider>
         <n-dialog-provider>
-          <!--          <div id="stars"></div>-->
-          <!--          <div id="stars2"></div>-->
-          <!--          <div id="stars3"></div>-->
-
           <RouterView/>
         </n-dialog-provider>
       </n-modal-provider>

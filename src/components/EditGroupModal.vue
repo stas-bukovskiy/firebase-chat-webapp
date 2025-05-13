@@ -3,7 +3,7 @@ import {CloseOutlined, GroupAddOutlined} from "@vicons/material";
 import {db} from "@/firebase";
 import UploadAvatar from "@/components/UploadAvatar.vue";
 import {computed, onMounted, type PropType, reactive, ref} from "vue";
-import {ChatEntity, PrivateChatAggregate, UserProfileEntity} from "@/services/entities.ts";
+import {ChatEntity, PrivateChatAggregate, UserProfileEntity} from "@/models/entities.ts";
 import {collection, doc, getDocs, limit, orderBy, query, setDoc, where} from "firebase/firestore";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
 import SearchPanelComponent from "@/components/SearchPanelComponent.vue";

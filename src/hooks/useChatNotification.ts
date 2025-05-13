@@ -3,7 +3,7 @@ import {useNotification} from 'naive-ui'
 import {useRoute, useRouter} from 'vue-router'
 import Avatar from '@/components/Avatar.vue'
 import {useChatStore} from "@/stores/chats.ts";
-import type {ChatAggregate} from "@/services/entities.ts";
+import type {ChatAggregate} from "@/models/entities.ts";
 
 export function useChatNotification() {
     const notification = useNotification()

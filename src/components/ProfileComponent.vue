@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import UserAvatar from "@/components/UserAvatar.vue";
-import {computed, ref} from "vue";
+import {computed, ref, onMounted} from "vue";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
 import {generateDisplayName} from "@/utils/avatars.ts";
 import {LogOutRound, SettingsOutlined} from "@vicons/material";
@@ -13,6 +13,14 @@ import {unsubscribeFromTokenRefresh} from "@/services/TokenRefreshService.ts";
 
 const currentUserStore = useCurrentUserStore();
 const currentUserProfile = currentUserStore.user
+
+onMounted(async() => {
+  if (!currentUserProfile.firstName) {
+    await currentUserStore.fetchUserByEmail(currentUserStore.email)
+  }
+  console.log('currentUserProfile', currentUserProfile)
+});
+
 const displayName = computed(() => generateDisplayName(currentUserProfile))
 
 const showProfileSettingsModal = ref(false);

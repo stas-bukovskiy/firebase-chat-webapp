@@ -2,7 +2,7 @@
 import {computed, nextTick, onMounted, onUnmounted, type PropType, ref, watch} from 'vue';
 import MessageInput from "@/components/MessageInput.vue";
 import MessageComponent from "@/components/MessageComponent.vue";
-import {type ChatAggregate, MessageEntity} from "@/services/entities.ts";
+import {type ChatAggregate, MessageEntity} from "@/models/entities.ts";
 import {
   collection,
   doc,
@@ -22,7 +22,7 @@ import {useNotification} from "naive-ui";
 import {nowToUTCTimestamp} from "@/utils/datetime.ts";
 import {useCurrentUserStore} from "@/stores/current-user.ts";
 import SystemMessageComponent from "@/components/SystemMessageComponent.vue";
-import type {QueryFilterConstraint} from "@firebase/firestore";
+import {Query, type QueryFilterConstraint, type Unsubscribe} from "@firebase/firestore";
 import {updateMessageReadStatus} from "@/services/MessageService.ts";
 
 const PAGE_SIZE = 24;
@@ -38,18 +38,22 @@ const isInitialLoading = ref(true);
 const isLoadingOldMessages = ref(false);
 const isLoadingNewMessages = ref(false);
 
-const chatContainer = ref(null);
+const chatContainer = ref<HTMLElement>();
 
 const messages = ref<MessageEntity[]>([]);
 
 const hasNoMoreOldMessages = ref(false);
 const hasNoMoreNewMessages = ref(false);
-let firstNewMessageId = null;
+let firstNewMessageId: string | null = null;
 
-let unsubscribe = null;
+let unsubscribe: Unsubscribe | null = null;
 
-const messagesSource = computed(() => {
-  return collection(db, 'chats', props.chatAgg?.chat?.id, 'messages').withConverter(MessageEntity.converter);
+const messagesSource = computed<Query>(() => {
+  if (!props.chatAgg?.chat) {
+    return null;
+  }
+
+  return collection(db, 'chats', props.chatAgg.chat.id, 'messages').withConverter(MessageEntity.converter);
 });
 
 onMounted(async () => {
@@ -78,7 +82,7 @@ const handleInitialFetch = async () => {
     await nextTick(() => {
       if (firstNewMessageId) {
         scrollToMessageById(firstNewMessageId);
-      } else {
+      } else if (chatContainer.value) {
         chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
       }
     })
@@ -115,6 +119,11 @@ const fetchInitialOldMessages = async () => {
     queryFilter.push(where("isRead", "==", true));
   }
 
+  if (!messagesSource.value) {
+    console.error("No messages source");
+    return
+  }
+
   const q = query(messagesSource.value, or(...queryFilter), orderBy('createdAt', 'desc'),
       limit(PAGE_SIZE));
   const snapshot = await getDocs(q);
@@ -124,9 +133,6 @@ const fetchInitialOldMessages = async () => {
   }
 
   prevMessages.sort((a, b) => a.createdAt - b.createdAt);
-  prevMessages.forEach((message) => {
-    console.log("Old message", message.fromUser?.id === currentUserStore.username, message.text, message.systemMessageType);
-  });
   messages.value = prevMessages;
 };
 
@@ -325,7 +331,7 @@ function scrollToBottom(): void {
 }
 
 // Function to scroll to a specific message by ID
-function scrollToMessageById(messageId: number): void {
+function scrollToMessageById(messageId: string): void {
   if (!chatContainer.value) return;
 
   const containerElement = chatContainer.value;

@@ -1,5 +1,26 @@
 <script setup lang="ts">
 import MenuComponent from "@/components/MenuComponent.vue";
+import EnableNotificationComponent from "@/components/EnableNotificationComponent.vue";
+import { onMounted, onUnmounted } from "vue";
+import { useCurrentUserStore } from "@/stores/current-user.ts"
+import {useChatNotification} from "@/hooks/useChatNotification.ts";
+import {initializeMessageListener} from "@/services/NotificationService.ts";
+import {subscribeToTokenRefresh, unsubscribeFromTokenRefresh} from "@/services/TokenRefreshService.ts";
+
+const currentUserStore = useCurrentUserStore();
+const {showChatNotification} = useChatNotification()
+
+onMounted(async () => {
+  await currentUserStore.setUserIsOnline(true);
+  initializeMessageListener(showChatNotification);
+  await subscribeToTokenRefresh();
+});
+
+onUnmounted(async () => {
+  await currentUserStore.setUserIsOnline(false);
+  unsubscribeFromTokenRefresh();
+});
+
 </script>
 
 <template>
@@ -12,6 +33,8 @@ import MenuComponent from "@/components/MenuComponent.vue";
         <router-view/>
       </div>
     </div>
+
+    <EnableNotificationComponent/>
   </main>
 </template>
 

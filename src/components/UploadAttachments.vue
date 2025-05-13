@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import {computed, type PropType, ref} from 'vue';
 import AttachmentComponent from "@/components/AttachmentComponent.vue";
-import type {AttachmentParams} from "@/services/models.ts";
+import type {AttachmentParams} from "@/models/models.ts";
 import AttachmentPreviewComponent from "@/components/AttachmentPreviewComponent.vue";
 
 const props = defineProps({

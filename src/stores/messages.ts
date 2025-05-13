@@ -1,5 +1,5 @@
 import {defineStore} from "pinia";
-import {MessageEntity} from "@/services/entities.ts";
+import {MessageEntity} from "@/models/entities.ts";
 import {collection, doc, limit, orderBy, query} from "firebase/firestore";
 import {db} from "@/firebase";
 import {useCollection} from "vuefire";

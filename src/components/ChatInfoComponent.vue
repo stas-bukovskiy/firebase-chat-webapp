@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {type PropType, ref, watch} from "vue";
-import type {ChatAggregate} from "@/services/entities.ts";
+import type {ChatAggregate} from "@/models/entities.ts";
 import ChatInfoMainPageComponent from "@/components/ChatInfoMainPageComponent.vue";
-import {Pages} from "@/services/enums.ts";
+import {Pages} from "@/models/enums.ts";
 import ChatInfoFilesPageComponent from "@/components/ChatInfoFilesPageComponent.vue";
 
 const props = defineProps({

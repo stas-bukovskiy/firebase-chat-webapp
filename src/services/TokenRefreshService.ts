@@ -24,9 +24,9 @@ export const subscribeToTokenRefresh = async (): Promise<void> => {
     }, {immediate: true});
 }
 
-export const unsubscribeFromTokenRefresh = async (): Promise<void> => {
+export const unsubscribeFromTokenRefresh = () => {
     if (unsubscribe) {
-        await unsubscribe();
+        unsubscribe();
         unsubscribe = null;
     }
 }
@@ -46,4 +46,5 @@ const subscribeToTokenRefreshHelper = async (username: string): Promise<void> =>
             }
         }
     });
+    console.log("subscribeToTokenRefreshHelper");
 }
