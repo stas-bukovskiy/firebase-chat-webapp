@@ -1,38 +1,48 @@
 <script setup lang="ts">
-
-import {useRoute} from "vue-router";
-import {onMounted, onUnmounted, provide, ref, watch} from "vue";
-import {useChatStore} from "@/stores/chats.ts";
+import { useRoute } from "vue-router";
+import { provide, ref, watch, computed } from "vue";
+import { useChatStore } from "@/stores/chats.ts";
 import ChatInfoComponent from "@/components/ChatInfoComponent.vue";
-import {INJECT_KEYS} from "@/utils/inject_keys.ts";
-import {useChatNotification} from "@/hooks/useChatNotification.ts";
-import {initializeMessageListener} from "@/services/NotificationService.ts";
-import {subscribeToTokenRefresh, unsubscribeFromTokenRefresh} from "@/services/TokenRefreshService.ts";
+import { INJECT_KEYS } from "@/utils/inject_keys.ts";
 
 const route = useRoute();
 const chatStore = useChatStore();
-const chatAgg = ref(chatStore.getChatByUserChatId(route.params.id));
 
-watch(() => route.params, (params) => {
-  chatAgg.value = chatStore.getChatByUserChatId(params.id);
+// keep track of the current chat ID
+const chatId = ref(route.params.id as string);
+watch(() => route.params.id, id => {
+  chatId.value = id as string;
 });
 
-provide(INJECT_KEYS.ChatAgg, chatAgg);
+// derive the chat aggregate reactively from Pinia
+const chatAgg = computed(() => chatStore.getChatByUserChatId(chatId.value));
 
+// show loading spinner as long as there's no chat in the store
+const isLoading = computed(() => !chatAgg.value);
+
+// make it injectable for children
+provide(INJECT_KEYS.ChatAgg, chatAgg);
 
 </script>
 
 <template>
-  <div class="row chat-container">
-    <div class="col-8 pe-0">
-      <!--Chat body-->
-      <div class="chat-body-layout bordered-right">
-        <RouterView/>
-      </div>
+  <div>
+    <!-- full‐screen spinner while loading -->
+    <div class="loading-spinner" v-if="isLoading">
+      <n-spin :show="isLoading"/>
     </div>
 
-    <div class="col-4 ps-0 chat-info-layout">
-      <ChatInfoComponent :chatAgg="chatAgg"/>
+    <!-- actual chat UI once loaded -->
+    <div v-else class="row chat-container">
+      <div class="col-8 pe-0">
+        <div class="chat-body-layout bordered-right">
+          <RouterView/>
+        </div>
+      </div>
+
+      <div class="col-4 ps-0 chat-info-layout">
+        <ChatInfoComponent :chatAgg="chatAgg"/>
+      </div>
     </div>
   </div>
 </template>
@@ -50,5 +60,13 @@ provide(INJECT_KEYS.ChatAgg, chatAgg);
   height: calc(100vh - 3.8rem);
   max-height: calc(100vh - 3.8rem);
   overflow: hidden;
+}
+
+.loading-spinner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

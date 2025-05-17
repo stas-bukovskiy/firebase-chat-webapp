@@ -1,5 +1,4 @@
 @import './base.css';
-@import './bg.css';
 
 body {
     background: radial-gradient(ellipse at bottom, #191627 0%, #110F1A 100%);
