@@ -9,13 +9,13 @@ service cloud.firestore {
     }
 
     // grab the username from the logged-in user’s token
-    //function getUsername() {
-    //  return request.auth.token.name;
-    //}
+    function getUsername() {
+      return request.auth.token.name;
+    }
 
-    //function getUserRef() {
-    //	return /databases/$(database)/documents/users/$(getUsername())
-    //}
+    function getUserRef() {
+    	return /databases/$(database)/documents/users/$(getUsername())
+    }
 
     match /refreshTime/{username} {
         allow read, write: if isSignedIn();
@@ -37,7 +37,8 @@ service cloud.firestore {
                             && resource.data.uid == request.auth.uid;
 
       match /tokens/{tokenId} {
-        allow read, write: if isSignedIn();
+        allow read, write: if isSignedIn()
+                            && username == getUsername();
       }
     }
 
@@ -45,7 +46,8 @@ service cloud.firestore {
     // path: userChats/{username}/chats
     // • only the owner (username) may read or write
     match /userChats/{username}/{multiSegment=**} {
-      allow read, write: if isSignedIn();
+      allow read, write: if isSignedIn()
+                         && getUsername() == username;
     }
 
     // chats collection:
@@ -54,19 +56,20 @@ service cloud.firestore {
     match /chats/{chatId} {
       // true if the caller’s token-username appears in members[]
       function isMember() {
-        return isSignedIn();
+        return isSignedIn() && getUserRef() in resource.data.members;
       }
 
       // create: you must include yourself in the new members list
       allow create: if isSignedIn()
-        && request.resource.data.members is list;
+        && request.resource.data.members is list
+        && getUserRef() in resource.data.members;
 
       // only existing members can read, update or delete
       allow read, update, delete: if isMember();
 
       // messages subcollection: same membership rule
       match /{multiSegment=**} {
-        allow read, write: if isSignedIn();
+        allow read, write: if true;
       }
     }
   }
